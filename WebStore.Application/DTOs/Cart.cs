@@ -1,13 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WebStore.Domain;
 
 namespace WebStore.Application.DTOs;
 
-public record Cart
+public sealed class Cart
 {
     [Key]
-    public int Id;
+    public int Id { get; set; }
 
-    public User User = null!;
+    public User User { get; set; } = null!;
 
-    public ICollection<Product>? Products { get; set; }
+    public ActivityInfo Activity { get; set; } = null!;
 }

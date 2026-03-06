@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WebStore.Domain;
 
 namespace WebStore.Application.DTOs;
 
@@ -10,23 +11,23 @@ public enum Role : byte
     User = 2
 }
 
-public record User
+public sealed class User
 {
     [Key]
-    public int Id;
+    public int Id { get; set; }
 
     [MaxLength(20)]
     [Column(TypeName = "VARCHAR")]
-    public string Username = null!;
+    public string Username { get; set; } = null!;
 
     [MaxLength(50)]
     [Column(TypeName = "VARCHAR")]
-    public string Email = null!;
+    public string Email { get; set; } = null!;
 
     [MaxLength(100)]
-    public string PasswordHash = null!;
+    public string PasswordHash { get; set; } = null!;
 
-    public Role Role = Role.User;
+    public Role Role { get; set; } = Role.User;
 
-    public ICollection<Order>? Orders { get; set; }
+    public ActivityInfo Activity { get; set; } = null!;
 }
