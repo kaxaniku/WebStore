@@ -5,14 +5,14 @@ using WebStore.Application.DTOs;
 
 namespace Webstore.Infrastructure.EntityConfigurations;
 
-internal class UserConfig : IEntityTypeConfiguration<User>
+internal class AdminConfig : IEntityTypeConfiguration<Admin>
 {
-    public void Configure(EntityTypeBuilder<User> builder)
+    public void Configure(EntityTypeBuilder<Admin> builder)
     {
         builder
             .HasIndex(a => a.Username)
             .IsUnique();
             
-        builder.ToTable("Users");
+        builder.ToTable("Admins");
     }
 }

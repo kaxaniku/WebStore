@@ -4,14 +4,7 @@ using WebStore.Domain;
 
 namespace WebStore.Application.DTOs;
 
-public enum Role : byte
-{
-    Owner = 0,
-    Admin = 1,
-    User = 2
-}
-
-public sealed class User
+public abstract class User
 {
     [Key]
     public int Id { get; set; }
@@ -26,8 +19,6 @@ public sealed class User
 
     [MaxLength(100)]
     public string PasswordHash { get; set; } = null!;
-
-    public Role Role { get; set; } = Role.User;
 
     public ActivityInfo Activity { get; set; } = null!;
 }

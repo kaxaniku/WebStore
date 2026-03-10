@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Webstore.Infrastructure;
 
@@ -12,9 +13,11 @@ using Webstore.Infrastructure;
 namespace WebStore.Infrastructure.Migrations
 {
     [DbContext(typeof(StoreDbContext))]
-    partial class StoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260310120859_WebStore-V1.15")]
+    partial class WebStoreV115
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,6 +37,20 @@ namespace WebStore.Infrastructure.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
+                    b.ComplexProperty<Dictionary<string, object>>("Activity", "WebStore.Application.DTOs.Cart.Activity#ActivityInfo", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<DateTime>("CreateDate")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<bool>("IsActive")
+                                .HasColumnType("bit");
+
+                            b1.Property<DateTime?>("UpdateDate")
+                                .HasColumnType("datetime2");
+                        });
+
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
@@ -51,9 +68,6 @@ namespace WebStore.Infrastructure.Migrations
 
                     b.Property<int>("CartId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("ItemAddedDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
@@ -112,9 +126,6 @@ namespace WebStore.Infrastructure.Migrations
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("OrderProcessedDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("MONEY");

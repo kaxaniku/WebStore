@@ -11,5 +11,7 @@ public sealed class CartItem
 
     public Product Product { get; set; } = null!;
 
+    public DateTime ItemAddedDate { get; set; } = DateTime.UtcNow;
+
     public int Quantity { get; set; }
 }

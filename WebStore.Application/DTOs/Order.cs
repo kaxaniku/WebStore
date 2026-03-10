@@ -8,8 +8,10 @@ public sealed class Order
     [Key]
     public int Id { get; set; }
 
-    public Cart cart { get; set; } = null!;
+    public Customer Customer { get; set; } = null!;
 
     [Column(TypeName = "MONEY")]
     public decimal TotalPrice { get; set; }
+
+    public DateTime OrderProcessedDate { get; set; } = DateTime.UtcNow;
 }
