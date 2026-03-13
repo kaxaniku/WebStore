@@ -16,6 +16,4 @@ public sealed class OrderItem
 
     [Column(TypeName = "MONEY")]
     public decimal ItemPrice { get; set; }
-
-    public DateTime ItemAddedDate { get; set; } = DateTime.UtcNow;
 }

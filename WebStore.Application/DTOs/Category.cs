@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WebStore.Domain;
+using WebStore.Application.Interfaces;
 
 namespace WebStore.Application.DTOs;
 
-public sealed class Category
+public sealed class Category : IDisable
 {
     [Key]
     public int Id { get; set; }

@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WebStore.Domain;
+using WebStore.Application.Interfaces;
 
 namespace WebStore.Application.DTOs;
 
-public sealed class Product
+public sealed class Product : IDisable
 {
     [Key]
     public int Id { get; set; }

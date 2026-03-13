@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WebStore.Domain;
+namespace WebStore.Application.DTOs;
 
 [ComplexType]
 public sealed class ActivityInfo

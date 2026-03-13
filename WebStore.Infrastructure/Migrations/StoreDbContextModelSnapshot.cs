@@ -26,17 +26,9 @@ namespace WebStore.Infrastructure.Migrations
             modelBuilder.Entity("WebStore.Application.DTOs.Cart", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
 
                     b.ToTable("Carts");
                 });
@@ -133,9 +125,6 @@ namespace WebStore.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("ItemAddedDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<decimal>("ItemPrice")
                         .HasColumnType("MONEY");
@@ -270,7 +259,7 @@ namespace WebStore.Infrastructure.Migrations
                 {
                     b.HasOne("WebStore.Application.DTOs.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
