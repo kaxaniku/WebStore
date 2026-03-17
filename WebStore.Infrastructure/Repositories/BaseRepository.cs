@@ -1,8 +1,8 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Webstore.Infrastructure;
 using WebStore.Application.Interfaces;
 using WebStore.Application.Interfaces.Repositories;
+using WebStore.Infrastructure.Extensions;
 
 namespace WebStore.Infrastructure.Repositories;
 
@@ -33,8 +33,7 @@ internal abstract class BaseRepository<T> : IDisposable, IAsyncDisposable, IBase
         ThrowIfDisposed();
 
         IQueryable<T> query = _dbSet;
-        foreach (var include in includes)
-            query = query.Include(include);
+        includes.ForEach(include => query = query.Include(include));
 
         return query.Where(predicate);
     }
@@ -61,8 +60,7 @@ internal abstract class BaseRepository<T> : IDisposable, IAsyncDisposable, IBase
         ThrowIfDisposed();
 
         IQueryable<T> query = _dbSet;
-        foreach (var include in includes)
-            query = query.Include(include);
+        includes.ForEach(include => query = query.Include(include));
 
         return await query.Where(predicate).ToListAsync();
     }
@@ -117,19 +115,18 @@ internal abstract class BaseRepository<T> : IDisposable, IAsyncDisposable, IBase
 
     public void Delete(T entity)
     {
-        if (entity is IDisable dEntity && !dEntity.Activity.IsActive)
-            throw new DbUpdateConcurrencyException("Entity is already disabled.");
+        if (entity is IDisable dEntity)
+        {
+            if (dEntity.Activity.IsActive)
+            {
+                dEntity.Activity.IsActive = false;
+                _dbSet.Update(entity);
+                return;
+            } else 
+                throw new DbUpdateConcurrencyException("Entity is already disabled.");
+        }
 
         _dbSet.Remove(entity);
-    }
-
-    public Task DeleteAsync(T entity)
-    {
-        if (entity is IDisable dEntity && !dEntity.Activity.IsActive)
-            throw new DbUpdateConcurrencyException("Entity is already disabled.");
-
-        _dbSet.Remove(entity);
-        return Task.CompletedTask;
     }
 
     public void Dispose()

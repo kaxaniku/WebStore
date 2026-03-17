@@ -1,5 +1,4 @@
-﻿using Webstore.Infrastructure;
-using WebStore.Application.Interfaces.Repositories;
+﻿using WebStore.Application.Interfaces.Repositories;
 
 namespace WebStore.Infrastructure.Repositories;
 

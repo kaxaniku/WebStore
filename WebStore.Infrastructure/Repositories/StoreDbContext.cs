@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Webstore.Infrastructure;
 using WebStore.Application.DTOs;
 
-namespace Webstore.Infrastructure;
+namespace WebStore.Infrastructure.Repositories;
 
 public sealed class StoreDbContext : DbContext
 {
@@ -22,7 +23,7 @@ public sealed class StoreDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(StoreDbContext).Assembly,
-            type => type.Namespace == "Webstore.Infrastructure.EntityConfigurations"
+            type => type.Namespace == "WebStore.Infrastructure.Repositories.EntityConfigurations"
         );
     }
 

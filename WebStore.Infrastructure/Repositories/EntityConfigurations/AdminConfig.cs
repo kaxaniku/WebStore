@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using WebStore.Application.DTOs;
 
-namespace Webstore.Infrastructure.EntityConfigurations;
+namespace WebStore.Infrastructure.Repositories.EntityConfigurations;
 
 internal class AdminConfig : IEntityTypeConfiguration<Admin>
 {

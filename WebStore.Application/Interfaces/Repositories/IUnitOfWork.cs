@@ -1,6 +1,4 @@
-﻿using WebStore.Application.Interfaces.Repositories;
-
-namespace WebStore.Application.Interfaces;
+﻿namespace WebStore.Application.Interfaces.Repositories;
 
 public interface IUnitOfWork : IDisposable, IAsyncDisposable
 {

@@ -21,7 +21,6 @@ public interface IBaseRepository<T> where T : class
 
     Task InsertAsync(T entity, CancellationToken cancellationToken);
     Task UpdateAsync(T entity);
-    Task DeleteAsync(T entity);
 
     void Dispose();
 

@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
-using Webstore.Infrastructure;
-using WebStore.Application.Interfaces;
 using WebStore.Application.Interfaces.Repositories;
-using WebStore.Infrastructure.Repositories;
 
-namespace WebStore.Infrastructure;
+namespace WebStore.Infrastructure.Repositories;
 
 public sealed class UnitOfWork : IUnitOfWork
 {

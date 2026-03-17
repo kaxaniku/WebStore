@@ -3,16 +3,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using WebStore.Application.DTOs;
 
-namespace Webstore.Infrastructure.EntityConfigurations;
+namespace WebStore.Infrastructure.Repositories.EntityConfigurations;
 
-internal class CustomerConfig : IEntityTypeConfiguration<Customer>
+internal class UserConfig : IEntityTypeConfiguration<User>
 {
-    public void Configure(EntityTypeBuilder<Customer> builder)
+    public void Configure(EntityTypeBuilder<User> builder)
     {
         builder
             .HasIndex(a => a.Username)
             .IsUnique();
             
-        builder.ToTable("Customers");
+        builder.ToTable("Users");
     }
 }
