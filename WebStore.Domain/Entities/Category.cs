@@ -1,14 +1,11 @@
-﻿using WebStore.Domain.ValueObjects;
+﻿namespace WebStore.Domain;
 
-namespace WebStore.Domain;
 public sealed class Category
 {
     public int Id { get; private set; }
-    public string Name { get; private set; }
+    public string Name { get; private set; } = null!;
 
-    private Category()
-    {
-    }
+    private Category() { }
 
     public static Category Create(string name)
     {

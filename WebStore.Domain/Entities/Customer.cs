@@ -1,16 +1,15 @@
 ﻿using WebStore.Domain.ValueObjects;
 
 namespace WebStore.Domain;
+
 public sealed class Customer
 {
     public int Id { get; private set; }
-    public string Username { get; private set; }
-    public string Email { get; private set; }
+    public string Username { get; private set; } = null!;
+    public string Email { get; private set; } = null!;
     public string PasswordHash { get; private set; } = null!;
 
-    private Customer()
-    {
-    }
+    private Customer() { }
 
     public static Customer Create(string username, string email, string passwordHash)
     {

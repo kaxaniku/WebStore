@@ -1,19 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using WebStore.Domain.ValueObjects;
+﻿namespace WebStore.Domain;
 
-namespace WebStore.Domain;
 public sealed class Product
 {
     public int Id { get; private set; }
-    public string Name { get; private set; }
+    public string Name { get; private set; } = null!;
     public decimal Price { get; private set; }
     public string? Description { get; private set; }
     public int Quantity { get; private set; }
 
-    private Product()
-    {
-    }
+    private Product() { }
 
     public static Product Create(string name, decimal price, string? description, int quantity)
     {
@@ -54,7 +49,7 @@ public sealed class Product
         product.Price = newPrice;
     }
 
-    public static void UpdateQuantity(Product product, int newQuantity)
+    public static void UpdateStock(Product product, int newQuantity)
     {
         if (newQuantity < 0)
             throw new ArgumentException("Quantity cannot be negative.", nameof(newQuantity));

@@ -4,13 +4,11 @@ namespace WebStore.Domain;
 public sealed class Admin
 {
     public int Id { get; private set; }
-    public string Username { get; private set; }
-    public string Email { get; private set; }
+    public string Username { get; private set; } = null!;
+    public string Email { get; private set; } = null!;
     public string PasswordHash { get; private set; } = null!;
 
-    private Admin()
-    {
-    }
+    private Admin() { }
 
     public static Admin Create(string username, string email, string passwordHash)
     {
