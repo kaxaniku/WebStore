@@ -21,9 +21,10 @@ public sealed class Cart
         };
     }
 
-    public void AddOrUpdateItem(Product product, int quantity)
+    public static void AddOrUpdateItem(Cart cart, Product product, int quantity)
     {
-        var existing = _items.FirstOrDefault(i => i.Product.Id == product.Id);
+        var items = cart._items;
+        var existing = items.FirstOrDefault(i => i.Product.Id == product.Id);
 
         if (existing != null)
         {
@@ -31,9 +32,9 @@ public sealed class Cart
         }
         else
         {
-            _items.Add(CartItem.Create(product, quantity));
+            items.Add(CartItem.Create(product, quantity));
         }
     }
 
-    public void Clear() => _items.Clear();
+    public static void Clear(Cart cart) => cart._items.Clear();
 }

@@ -6,7 +6,7 @@ public sealed class Product
     public string Name { get; private set; } = null!;
     public decimal Price { get; private set; }
     public string? Description { get; private set; }
-    public int Quantity { get; private set; }
+    public int Stock { get; private set; }
 
     private Product() { }
 
@@ -17,13 +17,13 @@ public sealed class Product
         if (price < 0)
             throw new ArgumentException("Price cannot be negative.", nameof(price));
         if (quantity < 0)
-            throw new ArgumentException("Quantity cannot be negative.", nameof(quantity));
+            throw new ArgumentException("Stock cannot be negative.", nameof(quantity));
         return new Product
         {
             Name = name,
             Description = description,
             Price = price,
-            Quantity = quantity
+            Stock = quantity
         };
     }
 
@@ -49,10 +49,10 @@ public sealed class Product
         product.Price = newPrice;
     }
 
-    public static void UpdateStock(Product product, int newQuantity)
+    public static void UpdateStock(Product product, int newStock)
     {
-        if (newQuantity < 0)
-            throw new ArgumentException("Quantity cannot be negative.", nameof(newQuantity));
-        product.Quantity = newQuantity;
+        if (newStock < 0)
+            throw new ArgumentException("Stock cannot be negative.", nameof(newStock));
+        product.Stock = newStock;
     }
 }
