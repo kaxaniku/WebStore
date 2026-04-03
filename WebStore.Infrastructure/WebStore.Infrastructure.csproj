@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WebStore.Application\WebStore.Application.csproj" />
+    <ProjectReference Include="..\WebStore.Domain\WebStore.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

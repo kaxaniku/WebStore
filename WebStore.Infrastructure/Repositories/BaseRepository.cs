@@ -94,10 +94,11 @@ internal abstract class BaseRepository<T> : IDisposable, IAsyncDisposable, IBase
         _dbSet.Add(entity);
     }
 
-    public async Task InsertAsync(T entity, CancellationToken cancellationToken)
+    public async Task<T> InsertAsync(T entity, CancellationToken cancellationToken)
     {
         ThrowIfDisposed();
         await _dbSet.AddAsync(entity, cancellationToken);
+        return entity;
     }
 
     public void Update(T entity)
