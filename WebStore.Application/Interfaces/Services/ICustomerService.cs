@@ -8,6 +8,8 @@ namespace WebStore.Application.Interfaces.Services
         static abstract event Action<int>? CustomerRemoved;
         static abstract event Action<Customer>? CustomerUpdated;
 
+        Task<IEnumerable<Customer>> GetAllCustomersAsync(CancellationToken cancellationToken);
+        Task<Customer> GetCustomerByIdAsync(int customerId, CancellationToken cancellationToken);
         Task ChangePasswordAsync(int customerId, string oldPw, string newPw, CancellationToken cancellationToken);
         Task<int> RegisterCustomerAsync(string username, string email, string password, CancellationToken cancellationToken);
         Task RemoveCustomerAsync(int customerId, CancellationToken cancellationToken);

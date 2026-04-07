@@ -22,6 +22,19 @@ public class CustomerService : ICustomerService
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
+    public async Task<IEnumerable<Customer>> GetAllCustomersAsync(CancellationToken cancellationToken)
+    {
+        var customers = await _unitOfWork.CustomerRepository.QueryAsync(x => x.Activity.IsActive, cancellationToken);
+        return _mapper.Map<IEnumerable<Customer>>(customers);
+    }
+
+    public async Task<Customer> GetCustomerByIdAsync(int customerId, CancellationToken cancellationToken)
+    {
+        var customer = await _unitOfWork.CustomerRepository.GetByIdAsync(customerId, cancellationToken);
+        if (customer == null) throw new KeyNotFoundException();
+        return _mapper.Map<Customer>(customer);
+    }
+
     public async Task<int> RegisterCustomerAsync(string username, string email, string password, CancellationToken cancellationToken)
     {
         var customerEntity = Customer.Create(username, email, password);
