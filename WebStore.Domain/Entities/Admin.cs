@@ -10,7 +10,7 @@ public sealed class Admin
 
     private Admin() { }
 
-    public static Admin Create(string username, string email, string passwordHash)
+    public static Admin Create(string username, string email, string password)
     {
         if (string.IsNullOrWhiteSpace(username))
             throw new ArgumentException("Username cannot be null or empty.", nameof(username));
@@ -18,7 +18,7 @@ public sealed class Admin
         {
             Username = username,
             Email = EmailAddress.Create(email),
-            PasswordHash = Password.Create(passwordHash)
+            PasswordHash = Password.Create(password)
         };
     }
 
