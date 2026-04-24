@@ -49,10 +49,11 @@ public sealed class Product
         product.Price = newPrice;
     }
 
-    public static void UpdateStock(Product product, int newStock)
+    public static Product UpdateStock(Product product, int newStock)
     {
         if (newStock < 0)
             throw new ArgumentException("Stock cannot be negative.", nameof(newStock));
         product.Stock = newStock;
+        return product;
     }
 }

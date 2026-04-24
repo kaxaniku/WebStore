@@ -21,7 +21,7 @@ public sealed class Cart
         };
     }
 
-    public static void AddOrUpdateItem(Cart cart, Product product, int quantity)
+    public static CartItem AddOrUpdateItem(Cart cart, Product product, int quantity)
     {
         var items = cart._items;
         var existing = items.FirstOrDefault(i => i.Product.Id == product.Id);
@@ -34,9 +34,15 @@ public sealed class Cart
         {
             items.Add(CartItem.Create(product, quantity));
         }
+
+        return existing ?? items.Last();
     }
 
-    public static void Clear(Cart cart) => cart._items.Clear();
+    public static Cart Clear(Cart cart) 
+    {
+        cart._items.Clear();
+        return cart;
+    } 
 
     public sealed class CartItem
     {
@@ -47,7 +53,7 @@ public sealed class Cart
 
         private CartItem() { }
 
-        internal static CartItem Create(Product product, int quantity)
+        public static CartItem Create(Product product, int quantity)
         {
             if (product == null) throw new ArgumentNullException(nameof(product));
             if (quantity <= 0) throw new ArgumentException("Quantity must be greater than zero.");
@@ -63,7 +69,7 @@ public sealed class Cart
             };
         }
 
-        internal static void AddQuantity(CartItem cartitem, int quantity)
+        public static void AddQuantity(CartItem cartitem, int quantity)
         {
             if (quantity <= 0)
                 throw new ArgumentException("Quantity must be at least 1.");
@@ -73,7 +79,7 @@ public sealed class Cart
             Product.UpdateStock(cartitem.Product, cartitem.Product.Stock - quantity);
         }
 
-        internal static void RemoveQuantity(CartItem cartitem, int quantity)
+        public static CartItem RemoveQuantity(CartItem cartitem, int quantity)
         {
             if (quantity <= 0)
                 throw new ArgumentException("Quantity must be at least 1.");
@@ -81,6 +87,7 @@ public sealed class Cart
                 throw new InvalidOperationException("Cannot remove more than the current quantity.");
             cartitem.Quantity -= quantity;
             Product.UpdateStock(cartitem.Product, cartitem.Product.Stock + quantity);
+            return cartitem;
         }
     }
 }
