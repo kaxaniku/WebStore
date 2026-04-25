@@ -9,6 +9,6 @@ internal class CustomerRepository : BaseRepository<Application.DTOs.Customer>, I
 
     public async Task<Application.DTOs.Customer?> GetByUsernameAsync(string username, CancellationToken cancellationToken)
     {
-        return await Query(c => c.Username == username).FirstOrDefaultAsync(cancellationToken);
+        return await Query(c => c.Username == username && c.Activity.IsActive).FirstOrDefaultAsync(cancellationToken);
     }
 }

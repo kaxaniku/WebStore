@@ -9,6 +9,6 @@ internal class AdminRepository : BaseRepository<Application.DTOs.Admin>, IAdminR
 
     public async Task<Application.DTOs.Admin?> GetByUsernameAsync(string username, CancellationToken cancellationToken)
     {
-        return await Query(c => c.Username == username).FirstOrDefaultAsync(cancellationToken);
+        return await Query(c => c.Username == username && c.Activity.IsActive).FirstOrDefaultAsync(cancellationToken);
     }
 }
