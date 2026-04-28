@@ -10,12 +10,14 @@ public class OrderService : IOrderService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ICartService _cartService;
+    private readonly IProductService _productService;
 
-    public OrderService(IUnitOfWork unitOfWork, IMapper mapper, ICartService cartService)
+    public OrderService(IUnitOfWork unitOfWork, IMapper mapper, ICartService cartService, IProductService productService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _cartService = cartService;
+        _productService = productService;
     }
 
     public async Task<Order> CreateOrderAsync(int customerId, CancellationToken ct)
@@ -45,13 +47,18 @@ public class OrderService : IOrderService
             await _unitOfWork.BeginTransactionAsync(ct);
 
             await _unitOfWork.OrderRepository.InsertAsync(orderDto, ct);
-            await _unitOfWork.SaveChangesAsync(ct);
             Order.SetId(orderEntity, orderDto.Id);
 
             foreach (var itemDto in orderItemDtos)
             {
                 itemDto.Order = orderDto;
                 await _unitOfWork.OrderItemRepository.InsertAsync(itemDto, ct);
+
+                var productDto = await _unitOfWork.ProductRepository.GetByIdAsync(itemDto.Product.Id, ct)
+                    ?? throw new KeyNotFoundException($"Product with ID {itemDto.Product.Id} not found");
+                var productEntity = _mapper.Map<Product>(productDto);
+                Product.UpdateStock(productEntity, productEntity.Stock - itemDto.Quantity);
+                await _productService.UpdateProductStockAsync(productEntity.Id, productEntity.Stock, ct);
             }
 
             await _cartService.ClearCartAsync(customerId, ct);

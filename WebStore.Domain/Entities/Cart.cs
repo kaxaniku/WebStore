@@ -59,7 +59,6 @@ public sealed class Cart
             if (quantity <= 0) throw new ArgumentException("Quantity must be greater than zero.");
             if (product.Stock < product.Stock + quantity)
                 throw new InvalidOperationException("Not enough stock available.");
-            Product.UpdateStock(product, product.Stock - quantity);
 
             return new CartItem
             {
@@ -76,7 +75,6 @@ public sealed class Cart
             if (cartitem.Product.Stock < cartitem.Quantity + quantity)
                 throw new InvalidOperationException("Not enough stock available.");
             cartitem.Quantity += quantity;
-            Product.UpdateStock(cartitem.Product, cartitem.Product.Stock - quantity);
         }
 
         public static CartItem RemoveQuantity(CartItem cartitem, int quantity)
@@ -86,7 +84,6 @@ public sealed class Cart
             if (cartitem.Quantity < quantity)
                 throw new InvalidOperationException("Cannot remove more than the current quantity.");
             cartitem.Quantity -= quantity;
-            Product.UpdateStock(cartitem.Product, cartitem.Product.Stock + quantity);
             return cartitem;
         }
     }

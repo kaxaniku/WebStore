@@ -9,33 +9,17 @@ public class CartService : ICartService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    private readonly IProductService _productService;
 
-    public CartService(IUnitOfWork unitOfWork, IMapper mapper, IProductService productService)
+    public CartService(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _productService = productService;
     }
 
     public async Task<Cart> GetCartAsync(int customerId, CancellationToken ct)
     {
-        var cartDto = await _unitOfWork.CartRepository.GetByIdAsync(customerId, ct);
-
-        if (cartDto == null)
-        {
-            var customerDto = await _unitOfWork.CustomerRepository.GetByIdAsync(customerId, ct)
-                ?? throw new KeyNotFoundException("Customer not found");
-
-            var customerEntity = _mapper.Map<Customer>(customerDto);
-            var newCartEntity = Cart.Create(customerEntity);
-
-            var newCartDto = _mapper.Map<DTOs.Cart>(newCartEntity);
-            await _unitOfWork.CartRepository.InsertAsync(newCartDto, ct);
-            await _unitOfWork.SaveChangesAsync(ct);
-
-            return newCartEntity;
-        }
+        var cartDto = await _unitOfWork.CartRepository.GetByIdAsync(customerId, ct)
+            ?? throw new KeyNotFoundException("Cart not found");
 
         return _mapper.Map<Cart>(cartDto);
     }
@@ -59,7 +43,6 @@ public class CartService : ICartService
         try
         {
             await _unitOfWork.BeginTransactionAsync(ct);
-            await _productService.UpdateProductStockAsync(productEntity.Id, productEntity.Stock - quantity, ct);
 
             if (existing == null)
             {
@@ -92,7 +75,6 @@ public class CartService : ICartService
             await _unitOfWork.BeginTransactionAsync(ct);
             if (itemToRemove != null)
             {
-                await _productService.UpdateProductStockAsync(itemToRemove.Product.Id, itemToRemove.Product.Stock + itemToRemove.Quantity, ct);
                 var cartItemDto = _mapper.Map<DTOs.CartItem>(itemToRemove);
 
                 _unitOfWork.CartItemRepository.Delete(cartItemDto);
@@ -123,7 +105,6 @@ public class CartService : ICartService
         if (item != null)
         {
             item = Cart.CartItem.RemoveQuantity(item, quantity);
-            await _productService.UpdateProductStockAsync(item.Product.Id, item.Product.Stock + quantity, ct);
 
             var cartItemDto = _mapper.Map<DTOs.CartItem>(item);
             await _unitOfWork.CartItemRepository.UpdateAsync(cartItemDto);
@@ -143,8 +124,6 @@ public class CartService : ICartService
             await _unitOfWork.BeginTransactionAsync(ct);
             foreach (var item in cartEntity.Items)
             {
-                var productEntity = Product.UpdateStock(item.Product, item.Product.Stock + item.Quantity);
-                await _productService.UpdateProductStockAsync(productEntity.Id, productEntity.Stock, ct);
                 var cartItemDto = _mapper.Map<DTOs.CartItem>(item);
                 _unitOfWork.CartItemRepository.Delete(cartItemDto);
             }
