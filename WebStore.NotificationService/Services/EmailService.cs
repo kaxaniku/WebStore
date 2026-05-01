@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using System.Net.Mail;
-using WebStore.Application.Interfaces.Services;
 using Microsoft.Extensions.Options;
+using WebStore.NotificationService.Interfaces.Services;
 
-namespace WebStore.Application.Services;
+namespace WebStore.NotificationService.Services;
 
 public sealed class EmailService : IEmailService
 {

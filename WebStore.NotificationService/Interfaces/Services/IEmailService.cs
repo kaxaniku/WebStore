@@ -1,4 +1,4 @@
-﻿namespace WebStore.Application.Interfaces.Services;
+﻿namespace WebStore.NotificationService.Interfaces.Services;
 
 public interface IEmailService
 {
