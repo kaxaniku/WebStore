@@ -50,7 +50,7 @@ public class CategoryServiceTests : BaseTests
         await _categoryService.UpdateAsync(existingId, newName, _cts.Token);
 
         var updatedCategory = await _categoryService.GetByIdAsync(existingId, _cts.Token);
-        Assert.That(updatedCategory.Name, Is.EqualTo(newName));
+        Assert.That(updatedCategory!.Name, Is.EqualTo(newName));
     }
 
     [Test]
@@ -81,7 +81,7 @@ public class CategoryServiceTests : BaseTests
         Assert.Multiple(() =>
         {
             Assert.That(rawDto, Is.Not.Null, "Row should still exist in the database.");
-            Assert.That(rawDto.Activity.IsActive, Is.False, "IsActive should be false.");
+            Assert.That(rawDto!.Activity.IsActive, Is.False, "IsActive should be false.");
         });
     }
 }

@@ -38,7 +38,6 @@ public class CategoryService : ICategoryService
     {
         var categoryEntity = Category.Create(catName);
         var dto = _mapper.Map<DTOs.Category>(categoryEntity);
-        dto.Activity = new DTOs.ActivityInfo();
         await _unitOfWork.CategoryRepository.InsertAsync(dto, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         Category.SetId(categoryEntity, dto.Id);
@@ -54,7 +53,6 @@ public class CategoryService : ICategoryService
         var categoryEntity = _mapper.Map<Category>(dto);
         Category.UpdateName(categoryEntity, newName);
         _mapper.Map(categoryEntity, dto);
-        dto.Activity = new DTOs.ActivityInfo();
         await _unitOfWork.CategoryRepository.UpdateAsync(dto);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         OnCategoryUpdated(categoryEntity);
@@ -65,7 +63,6 @@ public class CategoryService : ICategoryService
         var dto = await _unitOfWork.CategoryRepository.GetByIdAsync(id, cancellationToken);
         if (dto == null)
             throw new KeyNotFoundException($"Category with ID {id} not found.");
-        dto.Activity = new DTOs.ActivityInfo();
         _unitOfWork.CategoryRepository.Delete(dto);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         OnCategoryRemoved(id);

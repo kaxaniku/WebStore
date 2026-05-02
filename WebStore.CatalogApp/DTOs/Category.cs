@@ -13,5 +13,5 @@ public sealed class Category : IDisable
     [Column(TypeName = "VARCHAR")]
     public string Name { get; set; } = null!;
 
-    public ActivityInfo Activity { get; set; } = null!;
+    public ActivityInfo Activity { get; set; } = new();
 }

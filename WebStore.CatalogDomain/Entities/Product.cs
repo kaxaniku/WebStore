@@ -3,6 +3,7 @@
 public sealed class Product
 {
     public int Id { get; private set; }
+    public int CategoryId { get; private set; } = 0;
     public string Name { get; private set; } = null!;
     public decimal Price { get; private set; }
     public string? Description { get; private set; }
@@ -10,7 +11,7 @@ public sealed class Product
 
     private Product() { }
 
-    public static Product Create(string name, decimal price, string? description, int quantity)
+    public static Product Create(string name, decimal price, string? description, int quantity, int categoryId)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name name cannot be null or empty.", nameof(name));
@@ -18,12 +19,15 @@ public sealed class Product
             throw new ArgumentException("Price cannot be negative.", nameof(price));
         if (quantity < 0)
             throw new ArgumentException("Stock cannot be negative.", nameof(quantity));
+        if (categoryId < 0)
+            throw new ArgumentException("CategoryId cannot be negative.", nameof(categoryId));
         return new Product
         {
             Name = name,
             Description = description,
             Price = price,
-            Stock = quantity
+            Stock = quantity,
+            CategoryId = categoryId
         };
     }
 
@@ -32,6 +36,13 @@ public sealed class Product
         if (id <= 0)
             throw new ArgumentException("Id must be a positive integer.", nameof(id));
         product.Id = id;
+    }
+
+    public static void UpdateCategory(Product product, int newCategoryId)
+    {
+        if (newCategoryId < 0)
+            throw new ArgumentException("CategoryId cannot be negative.", nameof(newCategoryId));
+        product.CategoryId = newCategoryId;
     }
 
     public static void UpdateDesc(Product product, string newName, string? description)

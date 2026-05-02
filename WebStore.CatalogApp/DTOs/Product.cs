@@ -20,9 +20,10 @@ public sealed class Product : IDisable
     [Column(TypeName = "VARCHAR")]
     public string? Description { get; set; }
 
-    public int Quantity { get; set; }
+    public int Stock { get; set; }
 
+    public int CategoryId { get; set; }
     public Category Category { get; set; } = null!;
 
-    public ActivityInfo Activity { get; set; } = null!;
+    public ActivityInfo Activity { get; set; } = new();
 }
