@@ -1,7 +1,9 @@
 ﻿using MapsterMapper;
+using MassTransit;
 using WebStore.CatalogApp.Interfaces.Repositories;
 using WebStore.CatalogApp.Interfaces.Services;
 using WebStore.CatalogDomain.Entities;
+using WebStore.Contracts.Catalog.Category;
 
 namespace WebStore.CatalogApp.Services;
 
@@ -9,77 +11,60 @@ public class CategoryService : ICategoryService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public static event Action<Category>? CategoryAdded;
-    public static event Action<Category>? CategoryUpdated;
-    public static event Action<int>? CategoryRemoved;
-
-    public CategoryService(IUnitOfWork unitOfWork, IMapper mapper)
+    public CategoryService(IUnitOfWork unitOfWork, IMapper mapper, IPublishEndpoint publishEndpoint)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
     }
 
-    public async Task<IEnumerable<Category>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<IEnumerable<Category>> GetAllAsync(CancellationToken ct)
     {
-        var categories = await _unitOfWork.CategoryRepository.QueryAsync(x => x.Activity.IsActive, cancellationToken);
+        var categories = await _unitOfWork.CategoryRepository.QueryAsync(x => x.Activity.IsActive, ct);
         return _mapper.Map<IEnumerable<Category>>(categories);
     }
 
-    public async Task<Category?> GetByIdAsync(int id, CancellationToken cancellationToken)
+    public async Task<Category?> GetByIdAsync(int id, CancellationToken ct)
     {
-        var category = await _unitOfWork.CategoryRepository.GetByIdAsync(id, cancellationToken);
+        var category = await _unitOfWork.CategoryRepository.GetByIdAsync(id, ct);
         if (category == null || !category.Activity.IsActive)
             return null;
         return _mapper.Map<Category>(category);
     }
 
-    public async Task<int> AddAsync(string catName, CancellationToken cancellationToken)
+    public async Task<int> AddAsync(string catName, CancellationToken ct)
     {
         var categoryEntity = Category.Create(catName);
         var dto = _mapper.Map<DTOs.Category>(categoryEntity);
-        await _unitOfWork.CategoryRepository.InsertAsync(dto, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.CategoryRepository.InsertAsync(dto, ct);
+        await _publishEndpoint.Publish(new CategoryCreated(dto.Id, catName), ct);
+        await _unitOfWork.SaveChangesAsync(ct);
         Category.SetId(categoryEntity, dto.Id);
-        OnCategoryAdded(categoryEntity);
         return dto.Id;
     }
 
-    public async Task UpdateAsync(int id, string newName, CancellationToken cancellationToken)
+    public async Task UpdateAsync(int id, string newName, CancellationToken ct)
     {
-        var dto = await _unitOfWork.CategoryRepository.GetByIdAsync(id, cancellationToken);
+        var dto = await _unitOfWork.CategoryRepository.GetByIdAsync(id, ct);
         if (dto == null)
             throw new KeyNotFoundException($"Category with ID {id} not found.");
         var categoryEntity = _mapper.Map<Category>(dto);
         Category.UpdateName(categoryEntity, newName);
         _mapper.Map(categoryEntity, dto);
         await _unitOfWork.CategoryRepository.UpdateAsync(dto);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-        OnCategoryUpdated(categoryEntity);
+        await _publishEndpoint.Publish(new CategoryUpdated(dto.Id, newName), ct);
+        await _unitOfWork.SaveChangesAsync(ct);
     }
 
-    public async Task RemoveAsync(int id, CancellationToken cancellationToken)
+    public async Task RemoveAsync(int id, CancellationToken ct)
     {
-        var dto = await _unitOfWork.CategoryRepository.GetByIdAsync(id, cancellationToken);
+        var dto = await _unitOfWork.CategoryRepository.GetByIdAsync(id, ct);
         if (dto == null)
             throw new KeyNotFoundException($"Category with ID {id} not found.");
         _unitOfWork.CategoryRepository.Delete(dto);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-        OnCategoryRemoved(id);
-    }
-
-    private static void OnCategoryAdded(Category customer)
-    {
-        CategoryAdded?.Invoke(customer);
-    }
-
-    private static void OnCategoryUpdated(Category customer)
-    {
-        CategoryUpdated?.Invoke(customer);
-    }
-
-    private static void OnCategoryRemoved(int customerId)
-    {
-        CategoryRemoved?.Invoke(customerId);
+        await _publishEndpoint.Publish(new CategoryDeleted(dto.Id), ct);
+        await _unitOfWork.SaveChangesAsync(ct);
     }
 }

@@ -9,9 +9,9 @@ public class ProductServiceTests : BaseTests
     private ProductService _productService;
 
     [SetUp]
-    public override void SetUp()
+    public async override Task SetUp()
     {
-        base.SetUp();
+        await base.SetUp();
 
         _productService = new ProductService(_unitOfWork!, _mapper);
         _unitOfWork!.CategoryRepository.Insert(new CatalogApp.DTOs.Category {Name = "Electronics"});

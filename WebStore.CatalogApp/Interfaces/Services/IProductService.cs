@@ -4,10 +4,6 @@ namespace WebStore.CatalogApp.Interfaces.Services;
 
 public interface IProductService
 {
-    static abstract event Action<Product>? ProductAdded;
-    static abstract event Action<int>? ProductRemoved;
-    static abstract event Action<Product>? ProductUpdated;
-
     Task<int> CreateProductAsync(string name, decimal price, string? description, int quantity, int categoryId, CancellationToken ct);
     Task DeleteProductAsync(int id, CancellationToken ct);
     Task<IEnumerable<Product>> GetAllProductsAsync(CancellationToken ct);

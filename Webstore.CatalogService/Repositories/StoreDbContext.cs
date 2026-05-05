@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using WebStore.CatalogApp.DTOs;
 
 namespace Webstore.CatalogInfrastructure.Repositories;
@@ -17,6 +18,11 @@ public sealed class StoreDbContext : DbContext
             typeof(StoreDbContext).Assembly,
             type => type.Namespace == "Webstore.CatalogInfrastructure.Repositories.EntityConfigurations"
         );
+
+        modelBuilder.AddInboxStateEntity();
+        modelBuilder.AddOutboxMessageEntity();
+        modelBuilder.AddOutboxStateEntity();
+        modelBuilder.AddTransactionalOutboxEntities();
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
