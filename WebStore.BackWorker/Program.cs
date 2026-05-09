@@ -1,6 +1,7 @@
 using Hangfire;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using Webstore.CatalogInfrastructure.Repositories;
 using WebStore.BackWorker.Consumers;
 
@@ -12,6 +13,16 @@ public class Program
     {
         var builder = Host.CreateApplicationBuilder(args);
         var connectionString = builder.Configuration.GetConnectionString("Default");
+
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(builder.Configuration)
+            .CreateLogger();
+
+        builder.Services.AddLogging(loggingBuilder =>
+        {
+            loggingBuilder.ClearProviders();
+            loggingBuilder.AddSerilog();
+        });
 
         builder.Services.AddHostedService<Worker>();
         builder.Services.AddHangfire(config => config

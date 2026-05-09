@@ -7,13 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mapster" Version="10.0.7" />
-    <PackageReference Include="MassTransit" Version="9.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\WebStore.CatalogDomain\WebStore.CatalogDomain.csproj" />
     <ProjectReference Include="..\WebStore.Contracts\WebStore.Contracts.csproj" />
+    <ProjectReference Include="..\WebStore.Shared\WebStore.Shared.csproj" />
   </ItemGroup>
 
 </Project>

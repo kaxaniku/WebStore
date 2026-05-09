@@ -7,20 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="9.1.0" />
-    <PackageReference Include="MassTransit.RabbitMQ" Version="9.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.15" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.15">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.7" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.7" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\WebStore.CatalogApp\WebStore.CatalogApp.csproj" />
     <ProjectReference Include="..\WebStore.CatalogDomain\WebStore.CatalogDomain.csproj" />
+    <ProjectReference Include="..\WebStore.Shared\WebStore.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

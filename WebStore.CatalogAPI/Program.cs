@@ -2,13 +2,14 @@
 using Hangfire;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using Webstore.CatalogInfrastructure.Repositories;
 using WebStore.CatalogApi.Infrastructure;
+using WebStore.CatalogAPI.Extensions;
 using WebStore.CatalogApp.Interfaces.Repositories;
 using WebStore.CatalogApp.Interfaces.Services;
 using WebStore.CatalogApp.Mappings;
 using WebStore.CatalogApp.Services;
-using WebStore.Contracts.Catalog.Category;
 
 namespace WebStore.CatalogAPI
 {
@@ -57,9 +58,12 @@ namespace WebStore.CatalogAPI
                 .UseRecommendedSerializerSettings()
                 .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangFireConnection")));
 
+            builder.AddSerilogLogging();
+
             var app = builder.Build();
 
             app.UseHangfireDashboard();
+            app.UseSerilogRequestLogging();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

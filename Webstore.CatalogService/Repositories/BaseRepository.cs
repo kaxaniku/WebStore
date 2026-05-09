@@ -163,6 +163,8 @@ internal abstract class BaseRepository<T> : IDisposable, IAsyncDisposable, IBase
 
             _disposed = true;
         }
+
+        await Task.CompletedTask;
     }
     private void ThrowIfDisposed() => ObjectDisposedException.ThrowIf(_disposed, GetType());
 
