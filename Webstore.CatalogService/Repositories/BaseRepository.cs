@@ -12,7 +12,7 @@ internal abstract class BaseRepository<T> : IDisposable, IAsyncDisposable, IBase
     private readonly DbSet<T> _dbSet;
     private bool _disposed = false;
 
-    protected BaseRepository(StoreDbContext context)
+    protected BaseRepository(CatalogDbContext context)
     {
         _dbSet = context.Set<T>();
     }

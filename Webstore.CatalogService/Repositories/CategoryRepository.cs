@@ -5,5 +5,5 @@ namespace Webstore.CatalogInfrastructure.Repositories;
 
 internal class CategoryRepository : BaseRepository<Category>, ICategoryRepository
 {
-    public CategoryRepository(StoreDbContext context) : base(context) { }
+    public CategoryRepository(CatalogDbContext context) : base(context) { }
 }

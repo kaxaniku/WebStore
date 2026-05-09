@@ -6,7 +6,7 @@ namespace Webstore.CatalogInfrastructure.Repositories;
 
 public sealed class UnitOfWork : IUnitOfWork
 {
-    private readonly StoreDbContext _context;
+    private readonly CatalogDbContext _context;
     private IDbContextTransaction? _transaction;
     private bool _disposed;
 
@@ -16,7 +16,7 @@ public sealed class UnitOfWork : IUnitOfWork
     public IProductRepository ProductRepository => CheckDisposedAndGet(_product);
     public ICategoryRepository CategoryRepository => CheckDisposedAndGet(_category);
 
-    public UnitOfWork(StoreDbContext context)
+    public UnitOfWork(CatalogDbContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
 

@@ -11,7 +11,7 @@ using Webstore.CatalogInfrastructure.Repositories;
 
 namespace Webstore.CatalogInfrastructure.Migrations
 {
-    [DbContext(typeof(StoreDbContext))]
+    [DbContext(typeof(CatalogDbContext))]
     partial class StoreDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

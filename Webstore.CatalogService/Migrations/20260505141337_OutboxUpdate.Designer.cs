@@ -12,7 +12,7 @@ using Webstore.CatalogInfrastructure.Repositories;
 
 namespace Webstore.CatalogInfrastructure.Migrations
 {
-    [DbContext(typeof(StoreDbContext))]
+    [DbContext(typeof(CatalogDbContext))]
     [Migration("20260505141337_OutboxUpdate")]
     partial class OutboxUpdate
     {

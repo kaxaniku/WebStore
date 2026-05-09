@@ -14,7 +14,7 @@ namespace WebStore.CatalogTests;
 
 public abstract class BaseTests
 {
-    private StoreDbContext _context;
+    private CatalogDbContext _context;
     protected IPublishEndpoint _publisher;
     protected IUnitOfWork? _unitOfWork;
     protected IMapper _mapper = null!;
@@ -32,13 +32,13 @@ public abstract class BaseTests
         serviceCollection.AddSingleton(config);
         serviceCollection.AddScoped<IMapper, Mapper>();
 
-        serviceCollection.AddDbContext<StoreDbContext>();
+        serviceCollection.AddDbContext<CatalogDbContext>();
         serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
         serviceCollection.AddScoped<CategoryService>();
 
         serviceCollection.AddMassTransitTestHarness(x =>
         {
-            x.AddEntityFrameworkOutbox<StoreDbContext>(o =>
+            x.AddEntityFrameworkOutbox<CatalogDbContext>(o =>
             {
                 o.UseSqlServer();
                 o.UseBusOutbox();
@@ -54,7 +54,7 @@ public abstract class BaseTests
 
         _unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         _publisher = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
-        _context = scope.ServiceProvider.GetRequiredService<StoreDbContext>();
+        _context = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
         _cts = new CancellationTokenSource();
 
         _mapper = _harness.Scope.ServiceProvider.GetRequiredService<IMapper>();
@@ -72,7 +72,7 @@ public abstract class BaseTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        _context = new StoreDbContext();
+        _context = new CatalogDbContext();
 
         _context.Database.ExecuteSqlRaw("DELETE FROM Products");
         _context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Products', RESEED, 0)");
@@ -86,7 +86,7 @@ public abstract class BaseTests
     [OneTimeTearDown]
     public void OneTimeTearDown()
     {
-        _context = new StoreDbContext();
+        _context = new CatalogDbContext();
 
         _context.Database.ExecuteSqlRaw("DELETE FROM Products");
         _context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Products', RESEED, 0)");

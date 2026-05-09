@@ -1,4 +1,5 @@
 
+using Hangfire;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Webstore.CatalogInfrastructure.Repositories;
@@ -7,6 +8,7 @@ using WebStore.CatalogApp.Interfaces.Repositories;
 using WebStore.CatalogApp.Interfaces.Services;
 using WebStore.CatalogApp.Mappings;
 using WebStore.CatalogApp.Services;
+using WebStore.Contracts.Catalog.Category;
 
 namespace WebStore.CatalogAPI
 {
@@ -24,17 +26,18 @@ namespace WebStore.CatalogAPI
             builder.Services.AddSwaggerGen();
             builder.Services.AddProblemDetails();
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-            builder.Services.AddDbContext<StoreDbContext>(options =>
+            builder.Services.AddDbContext<CatalogDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
             builder.Services.RegisterMaps();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddMassTransit(x =>
             {
-                x.AddEntityFrameworkOutbox<StoreDbContext>(o =>
+                x.AddEntityFrameworkOutbox<CatalogDbContext>(o =>
                 {
                     o.UseSqlServer();
                     o.UseBusOutbox();
+                    o.QueryDelay = TimeSpan.FromSeconds(1);
                 });
 
                 x.UsingRabbitMq((context, cfg) =>
@@ -48,8 +51,15 @@ namespace WebStore.CatalogAPI
                     cfg.ConfigureEndpoints(context);
                 });
             });
+            builder.Services.AddHangfire(configuration => configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangFireConnection")));
 
             var app = builder.Build();
+
+            app.UseHangfireDashboard();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

@@ -5,5 +5,5 @@ namespace Webstore.CatalogInfrastructure.Repositories;
 
 internal class ProductRepository : BaseRepository<Product>, IProductRepository
 {
-    public ProductRepository(StoreDbContext context) : base(context) { }
+    public ProductRepository(CatalogDbContext context) : base(context) { }
 }

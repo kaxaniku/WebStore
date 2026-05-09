@@ -4,10 +4,10 @@ using WebStore.CatalogApp.DTOs;
 
 namespace Webstore.CatalogInfrastructure.Repositories;
 
-public sealed class StoreDbContext : DbContext
+public sealed class CatalogDbContext : DbContext
 {
-    public StoreDbContext() { }
-    public StoreDbContext(DbContextOptions<StoreDbContext> options) : base(options) { }
+    public CatalogDbContext() { }
+    public CatalogDbContext(DbContextOptions<CatalogDbContext> options) : base(options) { }
     public DbSet<Product>? Products { get; set; }
     public DbSet<Category>? Categories { get; set; }
 
@@ -15,13 +15,10 @@ public sealed class StoreDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(
-            typeof(StoreDbContext).Assembly,
+            typeof(CatalogDbContext).Assembly,
             type => type.Namespace == "Webstore.CatalogInfrastructure.Repositories.EntityConfigurations"
         );
 
-        modelBuilder.AddInboxStateEntity();
-        modelBuilder.AddOutboxMessageEntity();
-        modelBuilder.AddOutboxStateEntity();
         modelBuilder.AddTransactionalOutboxEntities();
     }
 

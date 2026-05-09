@@ -12,7 +12,7 @@ using Webstore.CatalogInfrastructure.Repositories;
 
 namespace Webstore.CatalogInfrastructure.Migrations
 {
-    [DbContext(typeof(StoreDbContext))]
+    [DbContext(typeof(CatalogDbContext))]
     [Migration("20260502112527_0.2V")]
     partial class _02V
     {
