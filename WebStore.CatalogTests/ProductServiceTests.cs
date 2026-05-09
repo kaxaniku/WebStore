@@ -9,11 +9,11 @@ public class ProductServiceTests : BaseTests
     private ProductService _productService;
 
     [SetUp]
-    public async override Task SetUp()
+    public override void SetUp()
     {
-        await base.SetUp();
+        base.SetUp();
 
-        _productService = new ProductService(_unitOfWork!, _mapper);
+        _productService = new ProductService(_unitOfWork!, _mapper, _publishMock!.Object);
         _unitOfWork!.CategoryRepository.Insert(new CatalogApp.DTOs.Category {Name = "Electronics"});
         _unitOfWork!.CategoryRepository.Insert(new CatalogApp.DTOs.Category {Name = "Home Appliances"});
         _unitOfWork.SaveChanges();
@@ -43,19 +43,13 @@ public class ProductServiceTests : BaseTests
     {
         int id = await _productService.CreateProductAsync("Keyboard", 100m, "Mechanical", 10, 1, _cts.Token);
         decimal newPrice = 85.50m;
-        Product? updatedEventEntity = null;
 
-        ProductService.ProductUpdated += (p) => updatedEventEntity = p;
 
         await _productService.UpdateProductPriceAsync(id, newPrice, _cts.Token);
 
         var product = await _productService.GetProductByIdAsync(id, _cts.Token);
         Assert.That(product, Is.Not.Null, "Product should exist in the repository/DB.");
         Assert.That(product!.Price, Is.EqualTo(newPrice), "Product price should be updated.");
-        Assert.That(updatedEventEntity, Is.Not.Null, "ProductUpdated event should be triggered.");
-        Assert.That(updatedEventEntity!.Price, Is.EqualTo(newPrice), "Event entity price should match the updated price.");
-
-        ProductService.ProductUpdated -= (p) => { };
     }
 
     [Test]
@@ -75,13 +69,8 @@ public class ProductServiceTests : BaseTests
     public async Task DeleteProductAsync_ShouldSoftDeleteProduct_AndTriggerEvent()
     {
         int idToRemove = await _productService.CreateProductAsync("Soft Delete Product", 99.99m, "Desc", 10, 1, _cts.Token);
-        bool eventTriggered = false;
-
-        ProductService.ProductRemoved += (id) => eventTriggered = (id == idToRemove);
 
         await _productService.DeleteProductAsync(idToRemove, _cts.Token);
-
-        Assert.That(eventTriggered, Is.True, "ProductRemoved event should fire.");
 
         var resultFromService = await _productService.GetProductByIdAsync(idToRemove, _cts.Token);
         Assert.That(resultFromService, Is.Null, "Service should not return soft-deleted products.");

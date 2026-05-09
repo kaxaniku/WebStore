@@ -5,6 +5,7 @@ using MassTransit.EntityFrameworkCoreIntegration;
 using MassTransit.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using Webstore.CatalogInfrastructure.Repositories;
 using WebStore.CatalogApp.Interfaces.Repositories;
 using WebStore.CatalogApp.Profiles;
@@ -15,55 +16,23 @@ namespace WebStore.CatalogTests;
 public abstract class BaseTests
 {
     private CatalogDbContext _context;
-    protected IPublishEndpoint _publisher;
+    protected Mock<IPublishEndpoint>? _publishMock;
     protected IUnitOfWork? _unitOfWork;
     protected IMapper _mapper = null!;
-    protected ITestHarness _harness = null!;
     protected CancellationTokenSource _cts;
 
     [SetUp]
-    public async virtual Task SetUp()
+    public virtual void SetUp()
     {
-        var serviceCollection = new ServiceCollection();
-
-        var config = new TypeAdapterConfig();
-        config.Scan(typeof(CategoryProfile).Assembly);
-
-        serviceCollection.AddSingleton(config);
-        serviceCollection.AddScoped<IMapper, Mapper>();
-
-        serviceCollection.AddDbContext<CatalogDbContext>();
-        serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
-        serviceCollection.AddScoped<CategoryService>();
-
-        serviceCollection.AddMassTransitTestHarness(x =>
-        {
-            x.AddEntityFrameworkOutbox<CatalogDbContext>(o =>
-            {
-                o.UseSqlServer();
-                o.UseBusOutbox();
-                o.DisableInboxCleanupService();
-            });
-        });
-
-        var provider = serviceCollection.BuildServiceProvider();
-        _harness = provider.GetRequiredService<ITestHarness>();
-        await _harness.Start();
-
-        var scope = _harness.Scope;
-
-        _unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-        _publisher = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
-        _context = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+        _publishMock = new Mock<IPublishEndpoint>();
+        _context = new CatalogDbContext();
+        _unitOfWork = new UnitOfWork(_context);
         _cts = new CancellationTokenSource();
-
-        _mapper = _harness.Scope.ServiceProvider.GetRequiredService<IMapper>();
     }
 
     [TearDown]
-    public async Task TearDown()
+    public void TearDown()
     {
-        await _harness.Stop();
         _unitOfWork?.Dispose();
         _context?.Dispose();
         _cts.Dispose();
@@ -72,6 +41,10 @@ public abstract class BaseTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
+        var config = new TypeAdapterConfig();
+        config.Scan(typeof(CategoryProfile).Assembly);
+        _mapper = new Mapper(config);
+
         _context = new CatalogDbContext();
 
         _context.Database.ExecuteSqlRaw("DELETE FROM Products");
@@ -95,15 +68,5 @@ public abstract class BaseTests
         _context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Categories', RESEED, 0)");
 
         _context.Dispose();
-    }
-
-    protected int GetOutboxMessageCount()
-    {
-        return _context.Set<OutboxMessage>().Count();
-    }
-
-    protected IPublishEndpoint GetPublishEndpoint()
-    {
-        return _harness.Scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
     }
 }

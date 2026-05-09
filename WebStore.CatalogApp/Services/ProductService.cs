@@ -1,7 +1,9 @@
 ﻿using MapsterMapper;
+using MassTransit;
 using WebStore.CatalogApp.Interfaces.Repositories;
 using WebStore.CatalogApp.Interfaces.Services;
 using WebStore.CatalogDomain.Entities;
+using WebStore.Contracts.Catalog.Product;
 
 namespace WebStore.CatalogApp.Services;
 
@@ -9,14 +11,12 @@ public class ProductService : IProductService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-
-    public static event Action<Product>? ProductAdded;
-    public static event Action<Product>? ProductUpdated;
-    public static event Action<int>? ProductRemoved;
-    public ProductService(IUnitOfWork unitOfWork, IMapper mapper)
+    private readonly IPublishEndpoint _publishEndpoint;
+    public ProductService(IUnitOfWork unitOfWork, IMapper mapper, IPublishEndpoint publishEndpoint)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<int> CreateProductAsync(string name, decimal price, string? description, int quantity, int categoryId, CancellationToken ct)
@@ -25,9 +25,16 @@ public class ProductService : IProductService
         var productDto = _mapper.Map<DTOs.Product>(productEntity);
 
         await _unitOfWork.ProductRepository.InsertAsync(productDto, ct);
+        await _publishEndpoint.Publish(new ProductCreated
+        {
+            Id = productDto.Id,
+            Name = productDto.Name,
+            Price = productDto.Price,
+            Stock = productDto.Stock,
+            CategoryId = productDto.CategoryId
+        });
         await _unitOfWork.SaveChangesAsync(ct);
         Product.SetId(productEntity, productDto.Id);
-        OnProductAdded(productEntity);
         return productDto.Id;
     }
 
@@ -53,8 +60,14 @@ public class ProductService : IProductService
         Product.UpdateDesc(entity, name, description);
 
         _mapper.Map(entity, productDto);
+        await _publishEndpoint.Publish(new ProductUpdated
+        {
+            Id = productDto.Id,
+            Name = productDto.Name,
+            Price = productDto.Price,
+            Stock = productDto.Stock
+        });
         await _unitOfWork.SaveChangesAsync(ct);
-        OnProductUpdated(entity);
     }
 
     public async Task DeleteProductAsync(int id, CancellationToken ct)
@@ -63,8 +76,8 @@ public class ProductService : IProductService
             ?? throw new KeyNotFoundException("Product not found");
 
         _unitOfWork.ProductRepository.Delete(productDto);
+        await _publishEndpoint.Publish(new ProductDeleted(id), ct);
         await _unitOfWork.SaveChangesAsync(ct);
-        OnProductRemoved(productDto.Id);
     }
     public async Task<IEnumerable<Product>> SearchProductsAsync(string productName, CancellationToken ct)
     {
@@ -87,8 +100,14 @@ public class ProductService : IProductService
         Product.UpdateStock(entity, newStock);
 
         _mapper.Map(entity, productDto);
+        await _publishEndpoint.Publish(new ProductUpdated
+        {
+            Id = productDto.Id,
+            Name = productDto.Name,
+            Price = productDto.Price,
+            Stock = productDto.Stock
+        }, ct);
         await _unitOfWork.SaveChangesAsync(ct);
-        OnProductUpdated(entity);
     }
 
     public async Task UpdateProductPriceAsync(int id, decimal newPrice, CancellationToken ct)
@@ -100,8 +119,14 @@ public class ProductService : IProductService
         Product.UpdatePrice(entity, newPrice);
 
         _mapper.Map(entity, productDto);
+        await _publishEndpoint.Publish(new ProductUpdated
+        {
+            Id = productDto.Id,
+            Name = productDto.Name,
+            Price = productDto.Price,
+            Stock = productDto.Stock
+        }, ct);
         await _unitOfWork.SaveChangesAsync(ct);
-        OnProductUpdated(entity);
     }
 
     public async Task UpdateProductCategory(int id, int categoryId, CancellationToken ct)
@@ -112,21 +137,5 @@ public class ProductService : IProductService
         Product.UpdateCategory(entity, categoryId);
         _mapper.Map(entity, productDto);
         await _unitOfWork.SaveChangesAsync(ct);
-        OnProductUpdated(entity);
-    }
-
-    private static void OnProductAdded(Product customer)
-    {
-        ProductAdded?.Invoke(customer);
-    }
-
-    private static void OnProductUpdated(Product customer)
-    {
-        ProductUpdated?.Invoke(customer);
-    }
-
-    private static void OnProductRemoved(int customerId)
-    {
-        ProductRemoved?.Invoke(customerId);
     }
 }

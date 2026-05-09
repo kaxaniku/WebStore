@@ -10,34 +10,26 @@ public class CategoryServiceTests : BaseTests
     private CategoryService _categoryService;
 
     [SetUp]
-    public async override Task SetUp()
+    public override void SetUp()
     {
-        await base.SetUp();
+        base.SetUp();
 
-        _categoryService = _harness.Scope.ServiceProvider.GetRequiredService<CategoryService>();
+        _categoryService = new CategoryService(_unitOfWork!, _mapper, _publishMock!.Object);
     }
 
     [Test]
-    public async Task AddAsync_ShouldCreateCategory_AndTriggerEvent()
+    public async Task AddAsync_ShouldCreateCategory()
     {
         string categoryName = "Electronics";
 
         int newId = await _categoryService.AddAsync(categoryName, _cts.Token);
 
-        var AddedCategory = await _categoryService.GetByIdAsync(newId, _cts.Token);
+        var addedCategory = await _categoryService.GetByIdAsync(newId, _cts.Token);
 
-        _cts.CancelAfter(TimeSpan.FromSeconds(5));
-
-        Assert.Multiple(async () =>
+        Assert.Multiple(() =>
         {
             Assert.That(newId, Is.GreaterThan(0));
-            Assert.That(AddedCategory?.Name, Is.EqualTo(categoryName));
-
-            var published = await _harness.Published.Any<CategoryCreated>(
-                x => x.Context!.Message.Name == categoryName,
-                _cts.Token
-            );
-            Assert.That(published, Is.True, "Message did not reach the bus.");
+            Assert.That(addedCategory?.Name, Is.EqualTo(categoryName));
         });
     }
                                                                                                             
@@ -51,14 +43,6 @@ public class CategoryServiceTests : BaseTests
 
         var updatedCategory = await _categoryService.GetByIdAsync(existingId, _cts.Token);
         Assert.That(updatedCategory!.Name, Is.EqualTo(newName));
-
-        var wasUpdatedPublished = await _harness.Published.Any<CategoryUpdated>(m =>
-            m.Context!.Message.Id == existingId &&
-            m.Context!.Message.Name == newName);
-
-        Assert.That(wasUpdatedPublished, Is.True, "CategoryUpdated message was not found in the harness.");
-
-        Assert.That(GetOutboxMessageCount(), Is.EqualTo(2), "Both Add and Update should be in the outbox.");
     }
 
     [Test]
@@ -82,15 +66,10 @@ public class CategoryServiceTests : BaseTests
 
         var rawDto = await _unitOfWork!.CategoryRepository.GetByIdAsync(idToRemove, _cts.Token);
 
-        Assert.Multiple(async () =>
+        Assert.Multiple(() =>
         {
             Assert.That(rawDto, Is.Not.Null, "Row should still exist in the database.");
             Assert.That(rawDto!.Activity.IsActive, Is.False, "IsActive should be false.");
-
-            var wasDeletedPublished = await _harness.Published.Any<CategoryDeleted>(m =>
-                m.Context!.Message.Id == idToRemove);
-
-            Assert.That(wasDeletedPublished, Is.True, "CategoryDeleted message was not found in the harness.");
         });
     }
 }

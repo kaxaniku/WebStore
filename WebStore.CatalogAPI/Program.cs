@@ -32,6 +32,7 @@ namespace WebStore.CatalogAPI
             builder.Services.RegisterMaps();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddMassTransit(x =>
             {
                 x.AddEntityFrameworkOutbox<CatalogDbContext>(o =>
