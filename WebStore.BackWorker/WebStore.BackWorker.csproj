@@ -14,6 +14,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Webstore.CatalogService\Webstore.CatalogInfrastructure.csproj" />
     <ProjectReference Include="..\WebStore.Contracts\WebStore.Contracts.csproj" />
+    <ProjectReference Include="..\WebStore.NotificationService\WebStore.NotificationService.csproj" />
     <ProjectReference Include="..\WebStore.Shared\WebStore.Shared.csproj" />
+    <ProjectReference Include="..\WebStore.UserInfrastructure\WebStore.UserInfrastructure.csproj" />
   </ItemGroup>
 </Project>

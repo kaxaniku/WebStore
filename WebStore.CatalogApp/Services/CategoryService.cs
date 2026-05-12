@@ -36,13 +36,24 @@ public class CategoryService : ICategoryService
 
     public async Task<int> AddAsync(string catName, CancellationToken ct)
     {
-        var categoryEntity = Category.Create(catName);
-        var dto = _mapper.Map<DTOs.Category>(categoryEntity);
-        await _unitOfWork.CategoryRepository.InsertAsync(dto, ct);
-        await _publishEndpoint.Publish(new CategoryCreated(dto.Id, catName), ct);
-        await _unitOfWork.SaveChangesAsync(ct);
-        Category.SetId(categoryEntity, dto.Id);
-        return dto.Id;
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync(ct);
+            var categoryEntity = Category.Create(catName);
+            var dto = _mapper.Map<DTOs.Category>(categoryEntity);
+            await _unitOfWork.CategoryRepository.InsertAsync(dto, ct);
+            await _unitOfWork.SaveChangesAsync(ct);
+            await _publishEndpoint.Publish(new CategoryCreated(dto.Id, catName), ct);
+            await _unitOfWork.SaveChangesAsync(ct);
+            Category.SetId(categoryEntity, dto.Id);
+            await _unitOfWork.CommitAsync(ct);
+            return dto.Id;
+        }
+        catch
+        {
+            await _unitOfWork.RollbackAsync(ct);
+            throw;
+        }
     }
 
     public async Task UpdateAsync(int id, string newName, CancellationToken ct)

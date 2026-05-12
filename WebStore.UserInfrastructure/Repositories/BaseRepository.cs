@@ -1,17 +1,17 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using WebStore.Application.Interfaces;
-using WebStore.Application.Interfaces.Repositories;
 using WebStore.Shared.Extensions;
+using WebStore.UserApp.Interfaces;
+using WebStore.UserApp.Interfaces.Repositories;
 
-namespace WebStore.Infrastructure.Repositories;
+namespace WebStore.UserInfrastructure.Repositories;
 
 internal abstract class BaseRepository<T> : IDisposable, IAsyncDisposable, IBaseRepository<T> where T : class
 {
     private readonly DbSet<T> _dbSet;
     private bool _disposed = false;
 
-    protected BaseRepository(StoreDbContext context)
+    protected BaseRepository(UserDbContext context)
     {
         _dbSet = context.Set<T>();
     }

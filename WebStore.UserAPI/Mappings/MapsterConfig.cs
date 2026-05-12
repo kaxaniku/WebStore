@@ -1,8 +1,8 @@
 ﻿using Mapster;
 using MapsterMapper;
-using WebStore.CatalogApp.Profiles;
+using WebStore.UserApp.Profiles;
 
-namespace WebStore.CatalogAPI.Mappings;
+namespace WebStore.UserAPI.Mappings;
 
 public static class MapsterConfig
 {
@@ -10,7 +10,7 @@ public static class MapsterConfig
     {
         var config = TypeAdapterConfig.GlobalSettings;
 
-        config.Scan(typeof(CategoryProfile).Assembly);
+        config.Scan(typeof(AdminProfile).Assembly);
 
         services.AddSingleton(config);
         services.AddScoped<IMapper, ServiceMapper>();

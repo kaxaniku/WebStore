@@ -2,15 +2,15 @@ using Hangfire;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using Webstore.CatalogInfrastructure.Repositories;
-using WebStore.CatalogAPI.Extensions;
-using WebStore.CatalogAPI.Mappings;
-using WebStore.CatalogAPI.Middlewares;
-using WebStore.CatalogApp.Interfaces.Repositories;
-using WebStore.CatalogApp.Interfaces.Services;
-using WebStore.CatalogApp.Services;
+using WebStore.UserInfrastructure.Repositories;
+using WebStore.UserAPI.Middlewares;
+using WebStore.UserAPI.Extensions;
+using WebStore.UserApp.Interfaces.Repositories;
+using WebStore.UserApp.Interfaces.Services;
+using WebStore.UserAPI.Mappings;
+using WebStore.UserApp.Services;
 
-namespace WebStore.CatalogAPI
+namespace WebStore.UserAPI
 {
     public class Program
     {
@@ -26,15 +26,15 @@ namespace WebStore.CatalogAPI
             builder.Services.AddSwaggerGen();
             builder.Services.AddProblemDetails();
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-            builder.Services.AddDbContext<CatalogDbContext>(options =>
+            builder.Services.AddDbContext<UserDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
             builder.Services.RegisterMaps();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<ICategoryService, CategoryService>();
-            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
             builder.Services.AddMassTransit(x =>
             {
-                x.AddEntityFrameworkOutbox<CatalogDbContext>(o =>
+                x.AddEntityFrameworkOutbox<UserDbContext>(o =>
                 {
                     o.UseSqlServer();
                     o.UseBusOutbox();
@@ -62,7 +62,7 @@ namespace WebStore.CatalogAPI
 
             var app = builder.Build();
 
-            app.UseHangfireDashboard("/hangfire-catalog");
+            app.UseHangfireDashboard("/hangfire-user");
             app.UseSerilogRequestLogging();
 
             // Configure the HTTP request pipeline.

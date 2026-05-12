@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebStore.CatalogAPI.Middlewares;
+namespace WebStore.UserAPI.Middlewares;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {

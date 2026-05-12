@@ -24,18 +24,28 @@ public class ProductService : IProductService
         var productEntity = Product.Create(name, price, description, quantity, categoryId);
         var productDto = _mapper.Map<DTOs.Product>(productEntity);
 
-        await _unitOfWork.ProductRepository.InsertAsync(productDto, ct);
-        await _publishEndpoint.Publish(new ProductCreated
+        try
         {
-            Id = productDto.Id,
-            Name = productDto.Name,
-            Price = productDto.Price,
-            Stock = productDto.Stock,
-            CategoryId = productDto.CategoryId
-        });
-        await _unitOfWork.SaveChangesAsync(ct);
-        Product.SetId(productEntity, productDto.Id);
-        return productDto.Id;
+            await _unitOfWork.BeginTransactionAsync(ct);
+            await _unitOfWork.ProductRepository.InsertAsync(productDto, ct);
+            await _publishEndpoint.Publish(new ProductCreated
+            {
+                Id = productDto.Id,
+                Name = productDto.Name,
+                Price = productDto.Price,
+                Stock = productDto.Stock,
+                CategoryId = productDto.CategoryId
+            });
+            await _unitOfWork.SaveChangesAsync(ct);
+            Product.SetId(productEntity, productDto.Id);
+            await _unitOfWork.CommitAsync(ct);
+            return productDto.Id;
+        }
+        catch
+        {
+            await _unitOfWork.RollbackAsync(ct);
+            throw;
+        }
     }
 
     public async Task<IEnumerable<Product>> GetAllProductsAsync(CancellationToken ct)

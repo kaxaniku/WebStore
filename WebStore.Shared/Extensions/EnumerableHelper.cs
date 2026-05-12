@@ -1,4 +1,4 @@
-﻿namespace WebStore.Infrastructure.Extensions;
+﻿namespace WebStore.Shared.Extensions;
 
 public static class EnumerableHelper
 {

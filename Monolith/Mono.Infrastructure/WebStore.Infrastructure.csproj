@@ -12,8 +12,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\WebStore.Shared\WebStore.Shared.csproj" />
     <ProjectReference Include="..\Mono.Application\WebStore.Application.csproj" />
     <ProjectReference Include="..\Mono.Domain\WebStore.Domain.csproj" />
   </ItemGroup>
