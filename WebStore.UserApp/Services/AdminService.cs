@@ -47,7 +47,6 @@ public class AdminService : IAdminService
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             Admin.SetId(adminEntity, dto.Id);
             await _unitOfWork.CommitAsync(cancellationToken);
-            //await _emailService.SendEmailAsync(adminEntity.Email, "Welcome to KN-Industry-WebStore", "Thank you for registering with us.");
             return adminEntity.Id;
         }
         catch (Exception ex)

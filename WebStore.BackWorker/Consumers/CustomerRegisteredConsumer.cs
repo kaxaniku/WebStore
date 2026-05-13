@@ -1,10 +1,7 @@
 ﻿using Hangfire;
 using MassTransit;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.Extensions.Options;
 using WebStore.Contracts.User.Customer;
 using WebStore.NotificationService.Interfaces.Services;
-using WebStore.NotificationService.Services;
 using WebStore.UserInfrastructure.Repositories;
 
 namespace WebStore.BackWorker.Consumers;
@@ -21,16 +18,6 @@ public class CustomerRegisteredConsumer : IConsumer<CustomerRegistered>
         _hangfire = hangfire;
         _logger = logger;
         _db = db;
-
-        var settings = new EmailSettings
-        {
-            SmtpServer = "smtp.gmail.com",
-            SmtpPort = 587,
-            FromAddress = "knindustrybank@gmail.com",
-            Password = "mhwg rwoe bkek svhs",
-        };
-
-        var options = Options.Create(settings);
 
         _emailService = emailService;
     }
@@ -52,7 +39,7 @@ public class CustomerRegisteredConsumer : IConsumer<CustomerRegistered>
     {
         _logger.LogInformation("[Hangfire Job] Warmly welcoming Customer to industry {Id}", message.Id);
 
-        await _emailService.SendEmailAsync(message.Email, "Welcome to KN-Industry-WebStore", $"Thank you for registering with us. {message.Username}");
+        await _emailService.SendEmailAsync(message.Email, "Welcome to KN-Industry-WebStore", $"Thank you for registering with us dear customer {message.Username}");
         await Task.Delay(1000);
         _logger.LogInformation("[Hangfire Job] Successfully registered Customer {Id}", message.Id);
     }
