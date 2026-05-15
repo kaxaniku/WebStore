@@ -12,11 +12,12 @@ public sealed class UnitOfWork : IUnitOfWork
     private readonly Lazy<ICartRepository> _cart;
     private readonly Lazy<ICartItemRepository> _cartItem;
     private readonly Lazy<IProductRepository> _product;
+    private readonly Lazy<ICustomerRepository> _customer;
 
     public ICartRepository CartRepository => CheckDisposedAndGet(_cart);
     public ICartItemRepository CartItemRepository => CheckDisposedAndGet(_cartItem);
     public IProductRepository ProductRepository => CheckDisposedAndGet(_product);
-
+    public ICustomerRepository CustomerRepository => CheckDisposedAndGet(_customer);
     public UnitOfWork(CartDbContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -24,6 +25,7 @@ public sealed class UnitOfWork : IUnitOfWork
         _cart = new Lazy<ICartRepository>(() => new CartRepository(_context));
         _cartItem = new Lazy<ICartItemRepository>(() => new CartItemRepository(_context));
         _product = new Lazy<IProductRepository>(() => new ProductRepository(_context));
+        _customer = new Lazy<ICustomerRepository>(() => new CustomerRepository(_context));
     }
 
     public int SaveChanges()
@@ -140,6 +142,9 @@ public sealed class UnitOfWork : IUnitOfWork
 
             if (_product.IsValueCreated)
                 _product.Value.Dispose();
+
+            if (_customer.IsValueCreated)
+                _customer.Value.Dispose();
         }
 
         _disposed = true;
@@ -163,6 +168,9 @@ public sealed class UnitOfWork : IUnitOfWork
 
             if (_product.IsValueCreated)
                 await _product.Value.DisposeAsync();
+
+            if (_customer.IsValueCreated)
+                await _customer.Value.DisposeAsync();
 
             _disposed = true;
         }

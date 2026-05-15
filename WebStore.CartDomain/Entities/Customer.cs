@@ -22,4 +22,11 @@ public sealed class Customer
             throw new ArgumentException("Id must be a positive integer.", nameof(id));
         customer.Id = id;
     }
+
+    public static void UpdateUsername(Customer customer, string newUsername)
+    {
+        if (string.IsNullOrWhiteSpace(newUsername))
+            throw new ArgumentException("Username cannot be null or empty.", nameof(newUsername));
+        customer.Username = newUsername;
+    }
 }

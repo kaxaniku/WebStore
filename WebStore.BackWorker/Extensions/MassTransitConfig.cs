@@ -1,5 +1,6 @@
 ﻿using MassTransit;
-using WebStore.BackWorker.Consumers;
+using WebStore.BackWorker.Consumers.CatalogConsumers;
+using WebStore.BackWorker.Consumers.UserConsumers;
 
 namespace WebStore.BackWorker.Extensions;
 
@@ -11,6 +12,11 @@ internal static class MassTransitConfig
         {
             x.AddConsumer<CategoryCreatedConsumer>();
             x.AddConsumer<CustomerRegisteredConsumer>();
+            x.AddConsumer<CustomerUpdatedConsumer>();
+            x.AddConsumer<CustomerRemovedConsumer>();
+            x.AddConsumer<ProductCreatedConsumer>();
+            x.AddConsumer<ProductDeletedConsumer>();
+            x.AddConsumer<ProductUpdatedConsumer>();
             x.AddConsumer<AdminRegisteredConsumer>();
 
             x.UsingRabbitMq((context, cfg) =>

@@ -13,8 +13,8 @@ using WebStore.CartInfrastructure.Repositories;
 namespace WebStore.CartInfrastructure.Migrations
 {
     [DbContext(typeof(CartDbContext))]
-    [Migration("20260515110210_InitialCart")]
-    partial class InitialCart
+    [Migration("20260515133042_CartService-1.0V")]
+    partial class CartService10V
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -244,10 +244,7 @@ namespace WebStore.CartInfrastructure.Migrations
             modelBuilder.Entity("WebStore.CartApp.DTOs.Customer", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -276,10 +273,7 @@ namespace WebStore.CartInfrastructure.Migrations
             modelBuilder.Entity("WebStore.CartApp.DTOs.Product", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()

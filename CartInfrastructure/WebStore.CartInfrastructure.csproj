@@ -13,10 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Repositories\EntityConfigurations\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="MassTransit.EntityFrameworkCore" Version="9.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.16">
       <PrivateAssets>all</PrivateAssets>

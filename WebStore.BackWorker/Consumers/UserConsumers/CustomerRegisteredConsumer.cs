@@ -1,23 +1,23 @@
 ﻿using Hangfire;
 using MassTransit;
+using WebStore.CartApp.Interfaces.Services;
 using WebStore.Contracts.User.Customer;
 using WebStore.NotificationService.Interfaces.Services;
-using WebStore.UserInfrastructure.Repositories;
 
-namespace WebStore.BackWorker.Consumers;
+namespace WebStore.BackWorker.Consumers.UserConsumers;
 
 public class CustomerRegisteredConsumer : IConsumer<CustomerRegistered>
 {
     private readonly IBackgroundJobClient _hangfire;
     private readonly ILogger<CustomerRegisteredConsumer> _logger;
-    private readonly UserDbContext _db;
     private readonly IEmailService _emailService;
+    private readonly ICartCustomerService _customerService;
 
-    public CustomerRegisteredConsumer(IBackgroundJobClient hangfire, ILogger<CustomerRegisteredConsumer> logger, UserDbContext db, IEmailService emailService)
+    public CustomerRegisteredConsumer(IBackgroundJobClient hangfire, ILogger<CustomerRegisteredConsumer> logger, IEmailService emailService, ICartCustomerService customerService)
     {
         _hangfire = hangfire;
         _logger = logger;
-        _db = db;
+        _customerService = customerService;
 
         _emailService = emailService;
     }
@@ -41,6 +41,7 @@ public class CustomerRegisteredConsumer : IConsumer<CustomerRegistered>
 
         await _emailService.SendEmailAsync(message.Email, "Welcome to KN-Industry-WebStore", $"Thank you for registering with us dear customer {message.Username}");
         await Task.Delay(1000);
+        await _customerService.RegisterCartCustomerAsync(message.Id, message.Username, CancellationToken.None); 
         _logger.LogInformation("[Hangfire Job] Successfully registered Customer {Id}", message.Id);
     }
 }

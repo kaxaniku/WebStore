@@ -3,7 +3,7 @@ using MassTransit;
 using Webstore.CatalogInfrastructure.Repositories;
 using WebStore.Contracts.Catalog.Category;
 
-namespace WebStore.BackWorker.Consumers;
+namespace WebStore.BackWorker.Consumers.CatalogConsumers;
 
 public class CategoryCreatedConsumer : IConsumer<CategoryCreated>
 {

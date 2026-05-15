@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebStore.CartInfrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCart : Migration
+    public partial class CartService10V : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,8 +15,7 @@ namespace WebStore.CartInfrastructure.Migrations
                 name: "Customers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     Username = table.Column<string>(type: "VARCHAR(20)", maxLength: 20, nullable: false),
                     Activity_CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Activity_IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -71,8 +70,7 @@ namespace WebStore.CartInfrastructure.Migrations
                 name: "Products",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "VARCHAR(20)", maxLength: 20, nullable: false),
                     Price = table.Column<decimal>(type: "MONEY", nullable: false),
                     Stock = table.Column<int>(type: "int", nullable: false),

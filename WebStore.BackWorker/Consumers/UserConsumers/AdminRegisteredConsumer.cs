@@ -4,7 +4,7 @@ using WebStore.Contracts.User.Admin;
 using WebStore.NotificationService.Interfaces.Services;
 using WebStore.UserInfrastructure.Repositories;
 
-namespace WebStore.BackWorker.Consumers;
+namespace WebStore.BackWorker.Consumers.UserConsumers;
 
 public class AdminRegisteredConsumer : IConsumer<AdminRegistered>
 {
