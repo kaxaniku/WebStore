@@ -10,14 +10,14 @@
     <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
     <PackageReference Include="Hangfire.SqlServer" Version="1.8.23" />
     <PackageReference Include="Mapster.DependencyInjection" Version="10.0.7" />
-    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="9.1.1" />
+    <PackageReference Include="MassTransit.AspNetCore" Version="7.3.1" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="9.1.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WebStore.UserApp\WebStore.UserApp.csproj" />
-    <ProjectReference Include="..\WebStore.UserInfrastructure\WebStore.UserInfrastructure.csproj" />
+    <ProjectReference Include="..\CartInfrastructure\WebStore.CartInfrastructure.csproj" />
+    <ProjectReference Include="..\WebStore.CartApp\WebStore.CartApp.csproj" />
   </ItemGroup>
 
 </Project>

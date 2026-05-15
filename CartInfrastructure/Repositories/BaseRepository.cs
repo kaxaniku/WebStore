@@ -1,18 +1,17 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using WebStore.CatalogApp.Interfaces.Repositories;
-using WebStore.CatalogApp.Interfaces;
+using WebStore.CartApp.Interfaces;
+using WebStore.CartApp.Interfaces.Repositories;
 using WebStore.Shared.Extensions;
 
-
-namespace Webstore.CatalogInfrastructure.Repositories;
+namespace WebStore.CartInfrastructure.Repositories;
 
 internal abstract class BaseRepository<T> : IDisposable, IAsyncDisposable, IBaseRepository<T> where T : class
 {
     private readonly DbSet<T> _dbSet;
     private bool _disposed = false;
 
-    protected BaseRepository(CatalogDbContext context)
+    protected BaseRepository(CartDbContext context)
     {
         _dbSet = context.Set<T>();
     }
@@ -163,8 +162,6 @@ internal abstract class BaseRepository<T> : IDisposable, IAsyncDisposable, IBase
 
             _disposed = true;
         }
-
-        await Task.CompletedTask;
     }
     private void ThrowIfDisposed() => ObjectDisposedException.ThrowIf(_disposed, GetType());
 
