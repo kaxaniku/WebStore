@@ -28,6 +28,7 @@ public class ProductService : IProductService
         {
             await _unitOfWork.BeginTransactionAsync(ct);
             await _unitOfWork.ProductRepository.InsertAsync(productDto, ct);
+            await _unitOfWork.SaveChangesAsync(ct);
             await _publishEndpoint.Publish(new ProductCreated
             {
                 Id = productDto.Id,

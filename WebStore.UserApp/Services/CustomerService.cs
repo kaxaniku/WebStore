@@ -41,9 +41,9 @@ public class CustomerService : ICustomerService
         try
         {
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
-            //await CreateCartForCustomer(dto.Id, cancellationToken);
             await _unitOfWork.CustomerRepository.InsertAsync(dto, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await CreateCartForCustomer(dto, cancellationToken);
             await _publishEndpoint.Publish(new CustomerRegistered(dto.Id, dto.Username, dto.Email));
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             Customer.SetId(customerEntity, dto.Id);
@@ -100,14 +100,14 @@ public class CustomerService : ICustomerService
     {
         var customer = await _unitOfWork.CustomerRepository.GetByIdAsync(customerId, cancellationToken)
                 ?? throw new KeyNotFoundException("Customer not found");
-        //var cart = await _unitOfWork.CartRepository.GetByIdAsync(customerId, cancellationToken)
-        //        ?? throw new KeyNotFoundException("Cart not found");
+        var cart = await _unitOfWork.CartRepository.GetByIdAsync(customerId, cancellationToken)
+                ?? throw new KeyNotFoundException("Cart not found");
 
         try
         {
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
             _unitOfWork.CustomerRepository.Delete(customer);
-            //_unitOfWork.CartRepository.Delete(cart);
+            _unitOfWork.CartRepository.Delete(cart);
 
             await _publishEndpoint.Publish(new CustomerRemoved(customer.Id));
             await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -120,16 +120,13 @@ public class CustomerService : ICustomerService
         }
     }
 
-    //private async Task CreateCartForCustomer(int customerId, CancellationToken ct)
-    //{
-    //    var customerDto = await _unitOfWork.CustomerRepository.GetByIdAsync(customerId, ct)
-    //            ?? throw new KeyNotFoundException("Customer not found");
-
-    //    var customerEntity = _mapper.Map<Customer>(customerDto);
-    //    var newCartEntity = Cart.Create(customerEntity);
-
-    //    var newCartDto = _mapper.Map<DTOs.Cart>(newCartEntity);
-    //    await _unitOfWork.CartRepository.InsertAsync(newCartDto, ct);
-    //    await _unitOfWork.SaveChangesAsync(ct);
-    //}
+    private async Task CreateCartForCustomer(DTOs.Customer customerDto, CancellationToken ct)
+    {
+        var newCartDto = new DTOs.Cart
+        {
+            Id = customerDto.Id,
+        };
+        await _unitOfWork.CartRepository.InsertAsync(newCartDto, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
+    }
 }

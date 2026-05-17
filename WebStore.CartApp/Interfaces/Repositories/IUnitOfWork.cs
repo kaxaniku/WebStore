@@ -10,6 +10,7 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     Task CommitAsync(CancellationToken cancellationToken);
     void Rollback();
     Task RollbackAsync(CancellationToken cancellationToken);
+    void ClearTracker();
 
     IProductRepository ProductRepository { get; }
     ICartRepository CartRepository { get; }

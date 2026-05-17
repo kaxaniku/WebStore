@@ -13,15 +13,15 @@ using Webstore.CatalogInfrastructure.Repositories;
 namespace Webstore.CatalogInfrastructure.Migrations
 {
     [DbContext(typeof(CatalogDbContext))]
-    [Migration("20260505141337_OutboxUpdate")]
-    partial class OutboxUpdate
+    [Migration("20260517100434_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.15")
+                .HasAnnotation("ProductVersion", "9.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);

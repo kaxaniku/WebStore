@@ -20,7 +20,9 @@ public class CartService : ICartService
     {
         var cartDto = await _unitOfWork.CartRepository.GetByIdAsync(customerId, ct)
             ?? throw new KeyNotFoundException("Cart not found");
-
+        var customerDto = await _unitOfWork.CustomerRepository.GetByIdAsync(customerId, ct)
+            ?? throw new KeyNotFoundException("Customer not found");
+        cartDto.Customer = customerDto;
         return _mapper.Map<Cart>(cartDto);
     }
 
@@ -30,6 +32,9 @@ public class CartService : ICartService
             ?? throw new KeyNotFoundException("Cart not found");
         var productDto = await _unitOfWork.ProductRepository.GetByIdAsync(productId, ct)
             ?? throw new KeyNotFoundException("Product not found");
+        var customerDto = await _unitOfWork.CustomerRepository.GetByIdAsync(customerId, ct)
+            ?? throw new KeyNotFoundException("Customer not found");
+        cartDto.Customer = customerDto;
 
         var cartEntity = _mapper.Map<Cart>(cartDto);
         var productEntity = _mapper.Map<Product>(productDto);
@@ -39,6 +44,9 @@ public class CartService : ICartService
         var cartItemEntity = Cart.AddOrUpdateItem(cartEntity, productEntity, quantity);
 
         var cartItemDto = _mapper.Map<DTOs.CartItem>(cartItemEntity);
+        cartItemDto.Cart = null;
+        cartItemDto.Product = null;
+        cartItemDto.CartId = cartDto.Id;
 
         try
         {
@@ -66,6 +74,9 @@ public class CartService : ICartService
     {
         var cartDto = await _unitOfWork.CartRepository.GetByIdAsync(customerId, ct)
             ?? throw new KeyNotFoundException("Cart not found");
+        var customerDto = await _unitOfWork.CustomerRepository.GetByIdAsync(customerId, ct)
+            ?? throw new KeyNotFoundException("Customer not found");
+        cartDto.Customer = customerDto;
 
         var cartEntity = _mapper.Map<Cart>(cartDto);
         var itemToRemove = cartEntity.Items.FirstOrDefault(i => i.Product.Id == productId);
@@ -98,6 +109,9 @@ public class CartService : ICartService
     {
         var cartDto = await _unitOfWork.CartRepository.GetByIdAsync(customerId, ct)
             ?? throw new KeyNotFoundException("Cart not found");
+        var customerDto = await _unitOfWork.CustomerRepository.GetByIdAsync(customerId, ct)
+            ?? throw new KeyNotFoundException("Customer not found");
+        cartDto.Customer = customerDto;
 
         var cartEntity = _mapper.Map<Cart>(cartDto);
         var item = cartEntity.Items.FirstOrDefault(i => i.Product.Id == productId);
@@ -116,6 +130,9 @@ public class CartService : ICartService
     {
         var cartDto = await _unitOfWork.CartRepository.GetByIdAsync(customerId, ct)
             ?? throw new KeyNotFoundException("Cart not found");
+        var customerDto = await _unitOfWork.CustomerRepository.GetByIdAsync(customerId, ct)
+            ?? throw new KeyNotFoundException("Customer not found");
+        cartDto.Customer = customerDto;
 
         var cartEntity = _mapper.Map<Cart>(cartDto);
 

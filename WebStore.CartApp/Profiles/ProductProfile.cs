@@ -8,6 +8,7 @@ public sealed class ProductProfile : IRegister
     {
         config.NewConfig<DTOs.Product, CartDomain.Entities.Product>()
             .ConstructUsing(src => CartDomain.Entities.Product.Create(
+                src.Name,
                 src.Price,
                 src.Stock
                 ));

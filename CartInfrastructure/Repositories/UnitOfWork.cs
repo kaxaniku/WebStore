@@ -116,6 +116,11 @@ public sealed class UnitOfWork : IUnitOfWork
         GC.SuppressFinalize(this);
     }
 
+    public void ClearTracker()
+    {
+        _context.ChangeTracker.Clear();
+    }
+
     private T CheckDisposedAndGet<T>(Lazy<T> lazy)
     {
         ThrowIfDisposed();

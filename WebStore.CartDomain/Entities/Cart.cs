@@ -57,7 +57,7 @@ public sealed class Cart
         {
             if (product == null) throw new ArgumentNullException(nameof(product));
             if (quantity <= 0) throw new ArgumentException("Quantity must be greater than zero.");
-            if (product.Stock < product.Stock + quantity)
+            if (product.Stock - quantity < 0)
                 throw new InvalidOperationException("Not enough stock available.");
 
             return new CartItem
@@ -72,7 +72,7 @@ public sealed class Cart
         {
             if (quantity <= 0)
                 throw new ArgumentException("Quantity must be at least 1.");
-            if (cartitem.Product.Stock < cartitem.Quantity + quantity)
+            if (cartitem.Product.Stock - (cartitem.Quantity + quantity) < 0)
                 throw new InvalidOperationException("Not enough stock available.");
             cartitem.Quantity += quantity;
         }

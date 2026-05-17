@@ -26,6 +26,7 @@ public class CartCustomerService : ICartCustomerService
         {
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
             await _unitOfWork.CustomerRepository.InsertAsync(dto, cancellationToken);
+            await _unitOfWork.CartRepository.InsertAsync(new DTOs.Cart { Id = customerEntity.Id }, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
             return customerEntity.Id;
@@ -58,6 +59,7 @@ public class CartCustomerService : ICartCustomerService
         {
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
             _unitOfWork.CustomerRepository.Delete(customer);
+            _unitOfWork.CartRepository.Delete(new DTOs.Cart { Id = customerId });
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
         }

@@ -36,7 +36,7 @@ public class ProductCreatedConsumer : IConsumer<ProductCreated>
         _logger.LogInformation("[Hangfire Job] Starting database work for Product {Id}", message.Id);
 
         await Task.Delay(1000);
-        await _cartProductService.CreateCartProductAsync(message.Id, message.Price, message.Stock, CancellationToken.None);
+        await _cartProductService.CreateCartProductAsync(message.Id, message.Name, message.Price, message.Stock, CancellationToken.None);
         _logger.LogInformation("[Hangfire Job] Successfully processed Product {Id}", message.Id);
     }
 }

@@ -12,10 +12,12 @@ public sealed class UnitOfWork : IUnitOfWork
     private readonly Lazy<IUserRepository> _user;
     private readonly Lazy<IAdminRepository> _admin;
     private readonly Lazy<ICustomerRepository> _customer;
+    private readonly Lazy<ICartRepository> _cart;
 
     public IUserRepository UserRepository => CheckDisposedAndGet(_user);
     public IAdminRepository AdminRepository => CheckDisposedAndGet(_admin);
     public ICustomerRepository CustomerRepository => CheckDisposedAndGet(_customer);
+    public ICartRepository CartRepository => CheckDisposedAndGet(_cart);
 
     public UnitOfWork(UserDbContext context)
     {
@@ -24,6 +26,7 @@ public sealed class UnitOfWork : IUnitOfWork
         _user = new Lazy<IUserRepository>(() => new UserRepository(_context));
         _admin = new Lazy<IAdminRepository>(() => new AdminRepository(_context));
         _customer = new Lazy<ICustomerRepository>(() => new CustomerRepository(_context));
+        _cart = new Lazy<ICartRepository>(() => new CartRepository(_context));
     }
 
     public int SaveChanges()
@@ -140,6 +143,9 @@ public sealed class UnitOfWork : IUnitOfWork
 
             if (_customer.IsValueCreated)
                 _customer.Value.Dispose();
+
+            if (_cart.IsValueCreated)
+                _cart.Value.Dispose();
         }
 
         _disposed = true;
@@ -163,6 +169,9 @@ public sealed class UnitOfWork : IUnitOfWork
 
             if (_customer.IsValueCreated)
                 await _customer.Value.DisposeAsync();
+
+            if (_cart.IsValueCreated)
+                await _cart.Value.DisposeAsync();
 
             _disposed = true;
         }

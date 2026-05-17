@@ -1,7 +1,7 @@
 ﻿using Mapster;
-using WebStore.CartDomain.Entities;
+using WebStore.UserDomain.Entities;
 
-namespace WebStore.CartApp.Profiles;
+namespace WebStore.UserApp.Profiles;
 
 public sealed class CartProfile : IRegister
 {
@@ -12,8 +12,5 @@ public sealed class CartProfile : IRegister
                 src.Customer.Adapt<Customer>()
                 ))
             .TwoWays();
-
-        config.NewConfig<Cart.CartItem, DTOs.CartItem>()
-            .Map(dest => dest.ProductId, src => src.Product.Id);
     }
 }

@@ -14,4 +14,5 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     ICustomerRepository CustomerRepository { get; }
     IAdminRepository AdminRepository { get; }
     IUserRepository UserRepository { get; }
+    ICartRepository CartRepository { get; }
 }
