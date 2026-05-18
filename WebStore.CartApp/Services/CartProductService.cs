@@ -43,6 +43,15 @@ public class CartProductService : ICartProductService
             ?? throw new KeyNotFoundException("Product not found");
 
         _unitOfWork.ProductRepository.Delete(productDto);
+        await _unitOfWork.CartItemRepository.QueryAsync(ci => ci.ProductId == id, ct)
+            .ContinueWith(t =>
+            {
+                var cartItems = t.Result;
+                foreach (var item in cartItems)
+                {
+                    _unitOfWork.CartItemRepository.Delete(item);
+                }
+            }, ct);
         await _unitOfWork.SaveChangesAsync(ct);
     }
 

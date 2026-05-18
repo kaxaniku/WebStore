@@ -4,20 +4,21 @@ public sealed class Cart
 {
     public int Id { get; private set; }
     public Customer Customer { get; private set; } = null!;
-    private readonly List<CartItem> _items = new();
+    private List<CartItem> _items = new();
     public IReadOnlyCollection<CartItem> Items => _items.AsReadOnly();
     public decimal TotalAmount => _items.Sum(item => item.Product.Price * item.Quantity);
 
     private Cart() { }
 
-    public static Cart Create(Customer customer)
+    public static Cart Create(Customer customer, List<CartItem> items)
     {
         if (customer == null) throw new ArgumentNullException(nameof(customer));
 
         return new Cart
         {
             Id = customer.Id,
-            Customer = customer
+            Customer = customer,
+            _items = items ?? new List<CartItem>()
         };
     }
 
@@ -32,7 +33,7 @@ public sealed class Cart
         }
         else
         {
-            items.Add(CartItem.Create(product, quantity));
+            items.Add(CartItem.Create(product, quantity, cart.Id));
         }
 
         return existing ?? items.Last();
@@ -47,13 +48,14 @@ public sealed class Cart
     public sealed class CartItem
     {
         public int Id { get; private set; }
+        public int CartId { get; private set; }
         public Product Product { get; private set; } = null!;
         public int Quantity { get; private set; }
         public DateTime AddedAt { get; private set; }
 
         private CartItem() { }
 
-        public static CartItem Create(Product product, int quantity)
+        public static CartItem Create(Product product, int quantity, int cartId)
         {
             if (product == null) throw new ArgumentNullException(nameof(product));
             if (quantity <= 0) throw new ArgumentException("Quantity must be greater than zero.");
@@ -64,6 +66,7 @@ public sealed class Cart
             {
                 Product = product,
                 Quantity = quantity,
+                CartId = cartId,
                 AddedAt = DateTime.UtcNow
             };
         }
@@ -81,8 +84,8 @@ public sealed class Cart
         {
             if (quantity <= 0)
                 throw new ArgumentException("Quantity must be at least 1.");
-            if (cartitem.Quantity < quantity)
-                throw new InvalidOperationException("Cannot remove more than the current quantity.");
+            if (cartitem.Quantity <= quantity)
+                throw new InvalidOperationException("Cannot remove more or same than the current quantity.");
             cartitem.Quantity -= quantity;
             return cartitem;
         }
