@@ -1,0 +1,174 @@
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using WebStore.OrderApp.Interfaces.Repositories;
+
+namespace WebStore.OrderInfrastructure.Repositories;
+
+public sealed class UnitOfWork : IUnitOfWork
+{
+    private readonly OrderDbContext _context;
+    private IDbContextTransaction? _transaction;
+    private bool _disposed;
+
+    private readonly Lazy<IProductRepository> _product;
+    private readonly Lazy<IOrderRepository> _order;
+    private readonly Lazy<IOrderItemRepository> _orderItem;
+
+    public IProductRepository ProductRepository => CheckDisposedAndGet(_product);
+    public IOrderRepository OrderRepository => CheckDisposedAndGet(_order);
+    public IOrderItemRepository OrderItemRepository => CheckDisposedAndGet(_orderItem);
+
+    public UnitOfWork(OrderDbContext context)
+    {
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+
+        _product = new Lazy<IProductRepository>(() => new ProductRepository(_context));
+        _order = new Lazy<IOrderRepository>(() => new OrderRepository(_context));
+        _orderItem = new Lazy<IOrderItemRepository>(() => new OrderItemRepository(_context));
+    }
+
+    public int SaveChanges()
+    {
+        ThrowIfDisposed();
+        return _context.SaveChanges();
+    }
+
+    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        ThrowIfDisposed();
+        return await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public void BeginTransaction()
+    {
+        ThrowIfDisposed();
+        if (_transaction != null)
+            throw new ArgumentException("Transaction has already started");
+
+        _transaction = _context.Database.BeginTransaction();
+    }
+
+    public async Task BeginTransactionAsync(CancellationToken cancellationToken)
+    {
+        ThrowIfDisposed();
+        if (_transaction != null)
+            throw new ArgumentException("Transaction has already started");
+
+        _transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+
+    }
+
+    public void Commit()
+    {
+        ThrowIfDisposed();
+        if (_transaction == null)
+            throw new ArgumentException("Transaction has not started");
+
+        _transaction?.Commit();
+        _transaction?.Dispose();
+        _transaction = null;
+    }
+
+    public async Task CommitAsync(CancellationToken cancellationToken)
+    {
+        ThrowIfDisposed();
+        if (_transaction == null)
+            throw new ArgumentException("Transaction has not started");
+
+        await _transaction.CommitAsync(cancellationToken);
+        await _transaction.DisposeAsync();
+        _transaction = null;
+
+    }
+
+    public void Rollback()
+    {
+        ThrowIfDisposed();
+        if (_transaction == null)
+            throw new ArgumentException("Transaction has not started");
+
+        _transaction?.Rollback();
+        _transaction?.Dispose();
+        _transaction = null;
+    }
+
+    public async Task RollbackAsync(CancellationToken cancellationToken)
+    {
+        ThrowIfDisposed();
+        if (_transaction == null)
+            throw new ArgumentException("Transaction has not started");
+
+        await _transaction.RollbackAsync(cancellationToken);
+        await _transaction.DisposeAsync();
+        _transaction = null;
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsyncCore();
+        GC.SuppressFinalize(this);
+    }
+
+    private T CheckDisposedAndGet<T>(Lazy<T> lazy)
+    {
+        ThrowIfDisposed();
+        return lazy.Value;
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (_disposed) return;
+
+        if (disposing)
+        {
+            if (_transaction != null)
+            {
+                _transaction.DisposeAsync();
+                _transaction = null;
+            }
+
+            if (_product.IsValueCreated)
+                _product.Value.Dispose();
+
+            if (_order.IsValueCreated)
+                _order.Value.Dispose();
+
+            if (_orderItem.IsValueCreated)
+                _orderItem.Value.Dispose();
+        }
+
+        _disposed = true;
+    }
+
+    private async ValueTask DisposeAsyncCore()
+    {
+        if (!_disposed)
+        {
+            if (_transaction != null)
+            {
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
+
+            if (_product.IsValueCreated)
+                await _product.Value.DisposeAsync();
+
+            if (_order.IsValueCreated)
+                await _order.Value.DisposeAsync();
+
+            if (_orderItem.IsValueCreated)
+                await _orderItem.Value.DisposeAsync();
+
+            _disposed = true;
+        }
+    }
+
+    private void ThrowIfDisposed() => ObjectDisposedException.ThrowIf(_disposed, GetType());
+
+    ~UnitOfWork() => Dispose(false);
+}
