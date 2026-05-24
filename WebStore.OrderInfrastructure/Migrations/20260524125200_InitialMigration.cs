@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebStore.OrderInfrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialOrder : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -70,8 +70,7 @@ namespace WebStore.OrderInfrastructure.Migrations
                 name: "Products",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "VARCHAR(20)", maxLength: 20, nullable: false),
                     Price = table.Column<decimal>(type: "MONEY", nullable: false),
                     Stock = table.Column<int>(type: "int", nullable: false),

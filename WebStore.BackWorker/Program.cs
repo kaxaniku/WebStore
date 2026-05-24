@@ -27,6 +27,8 @@ public class Program
         builder.ConfigureContexts();
 
         builder.ConfigureCartService();
+        builder.ConfigureOrderService();
+        builder.ConfigureCatalogService();
         builder.ConfigureEmail();
 
         builder.ConfigureMassTransit();

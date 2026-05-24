@@ -13,8 +13,8 @@ using WebStore.OrderInfrastructure.Repositories;
 namespace WebStore.OrderInfrastructure.Migrations
 {
     [DbContext(typeof(OrderDbContext))]
-    [Migration("20260522120211_InitialOrder")]
-    partial class InitialOrder
+    [Migration("20260524125200_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -256,10 +256,7 @@ namespace WebStore.OrderInfrastructure.Migrations
             modelBuilder.Entity("WebStore.OrderApp.DTOs.Product", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()

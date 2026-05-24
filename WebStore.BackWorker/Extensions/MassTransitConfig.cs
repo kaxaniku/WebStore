@@ -18,6 +18,7 @@ internal static class MassTransitConfig
             x.AddConsumer<ProductDeletedConsumer>();
             x.AddConsumer<ProductUpdatedConsumer>();
             x.AddConsumer<AdminRegisteredConsumer>();
+            x.AddConsumer<GetCartRequestConsumer>();
 
             x.UsingRabbitMq((context, cfg) =>
             {

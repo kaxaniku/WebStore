@@ -253,10 +253,7 @@ namespace WebStore.OrderInfrastructure.Migrations
             modelBuilder.Entity("WebStore.OrderApp.DTOs.Product", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()

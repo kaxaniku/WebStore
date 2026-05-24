@@ -11,7 +11,7 @@ public sealed class Order
 
     private Order() { }
 
-    public static Order Create(int customerId)
+    public static Order Create(int customerId, List<OrderItem> items)
     {
         if (customerId <= 0) throw new ArgumentException("Customer ID must be a positive integer.", nameof(customerId));
 
@@ -19,7 +19,7 @@ public sealed class Order
         {
             CustomerId = customerId,
             CreatedAt = DateTime.UtcNow,
-            //_items = cart.Items.Select(OrderItem.Create).ToList()
+            _items = items ?? new List<OrderItem>()
         };
     }
 
@@ -33,33 +33,33 @@ public sealed class Order
     public sealed class OrderItem
     {
         public int Id { get; private set; }
-        //public Cart.CartItem CartItem { get; private set; } = null!;
+        public int OrderId { get; private set; }
+        public int ProductId { get; private set; }
         public int Quantity { get; private set; }
         public decimal UnitPrice { get; private set; }
         public decimal TotalPrice => UnitPrice * Quantity;
 
         private OrderItem() { }
 
-        internal static OrderItem Create()
+        public static OrderItem Create(int orderId, int quantity, decimal unitPrice, int productId)
         {
-            //if (cartItem == null)
-            //    throw new ArgumentNullException(nameof(cartItem));
             return new OrderItem
             {
-                //CartItem = cartItem,
-                //Quantity = cartItem.Quantity,
-                //UnitPrice = cartItem.Product.Price
+                OrderId = orderId,
+                Quantity = quantity,
+                ProductId = productId,
+                UnitPrice = unitPrice
             };
         }
 
-        internal static void SetId(OrderItem orderitem, int id)
+        public static void SetId(OrderItem orderitem, int id)
         {
             if (id <= 0)
                 throw new ArgumentException("Id must be a positive integer.", nameof(id));
             orderitem.Id = id;
         }
 
-        internal static void UpdateUnitPrice(OrderItem orderitem, decimal newPrice)
+        public static void UpdateUnitPrice(OrderItem orderitem, decimal newPrice)
         {
             if (newPrice < 0)
                 throw new ArgumentException("Unit price cannot be negative.");

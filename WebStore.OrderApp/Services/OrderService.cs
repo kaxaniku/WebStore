@@ -1,4 +1,6 @@
 ﻿using MapsterMapper;
+using MassTransit;
+using WebStore.Contracts.Cart;
 using WebStore.OrderApp.Interfaces.Repositories;
 using WebStore.OrderApp.Interfaces.Services;
 using WebStore.OrderDomain.Entities;
@@ -9,24 +11,50 @@ public class OrderService : IOrderService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    private readonly IOrderCartService _cartService;
     private readonly IOrderProductService _productService;
+    private readonly IRequestClient<GetCartRequest> _cartRequestClient;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IOrderCartService cartService, IOrderProductService productService)
+    public OrderService(
+        IUnitOfWork unitOfWork, 
+        IMapper mapper, 
+        IOrderProductService productService,
+        IRequestClient<GetCartRequest> cartRequestClient,
+        IPublishEndpoint publishEndpoint
+        )
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _cartService = cartService;
         _productService = productService;
+        _cartRequestClient = cartRequestClient;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<Order> CreateOrderAsync(int customerId, CancellationToken ct)
     {
-        //var cartEntity = await _cartService.GetCartAsync(customerId, ct);
-        //if (!cartEntity.Items.Any())
-        //    throw new InvalidOperationException("Cannot create an order with an empty cart.");
+        var response = await _cartRequestClient.GetResponse<GetCartResponse>(
+            new GetCartRequest(customerId),
+            ct
+        );
 
-        var orderEntity = Order.Create(customerId);
+        var cartData = response.Message;
+
+        if (!cartData.Items.Any())
+            throw new InvalidOperationException("Cannot create an order with an empty cart.");
+
+        var productIds = cartData.Items.Select(i => i.ProductId).Distinct().ToList();
+
+        var productList = await _unitOfWork.ProductRepository.QueryAsync(p => productIds.Contains(p.Id), ct);
+        var products = productList.ToDictionary(p => p.Id);
+
+        var items = cartData.Items.Select(item =>
+        {
+            if (!products.TryGetValue(item.ProductId, out var productDto))
+                throw new KeyNotFoundException($"Product with ID {item.ProductId} not found");
+
+            return Order.OrderItem.Create(0, item.Quantity, productDto!.Price, item.ProductId);
+        }).ToList();
+        var orderEntity = Order.Create(customerId, items);
 
         return orderEntity;
     }
@@ -34,7 +62,7 @@ public class OrderService : IOrderService
     public async Task<int> PlaceOrderAsync(int customerId, CancellationToken ct)
     {
         var orderEntity = await CreateOrderAsync(customerId, ct);
-
+        _unitOfWork.ClearTracker();
         var orderDto = _mapper.Map<DTOs.Order>(orderEntity);
         var orderItemDtos = _mapper.Map<IEnumerable<DTOs.OrderItem>>(orderEntity.Items);
 
@@ -43,21 +71,24 @@ public class OrderService : IOrderService
             await _unitOfWork.BeginTransactionAsync(ct);
 
             await _unitOfWork.OrderRepository.InsertAsync(orderDto, ct);
-            Order.SetId(orderEntity, orderDto.Id);
 
             foreach (var itemDto in orderItemDtos)
             {
-                itemDto.Order = orderDto;
+                itemDto.Order = null;
+                itemDto.Product = null;
                 await _unitOfWork.OrderItemRepository.InsertAsync(itemDto, ct);
 
-                var productDto = await _unitOfWork.ProductRepository.GetByIdAsync(itemDto.Product.Id, ct)
-                    ?? throw new KeyNotFoundException($"Product with ID {itemDto.Product.Id} not found");
+                var productDto = await _unitOfWork.ProductRepository.GetByIdAsync(itemDto.ProductId, ct)
+                    ?? throw new KeyNotFoundException($"Product with ID {itemDto.ProductId} not found");
                 var productEntity = _mapper.Map<Product>(productDto);
                 Product.UpdateStock(productEntity, productEntity.Stock - itemDto.Quantity);
-                await _productService.UpdateProductStockAsync(productEntity.Id, productEntity.Stock, ct);
+                productDto.Stock = productEntity.Stock;
+                await _productService.UpdateMainProductStockAsync(productDto, productEntity, ct);
             }
 
-            await _cartService.ClearCartAsync(customerId, ct);
+            await _unitOfWork.SaveChangesAsync(ct);
+            Order.SetId(orderEntity, orderDto.Id);
+            await _publishEndpoint.Publish(new ClearCartRequest(orderEntity.CustomerId), ct);
 
             await _unitOfWork.SaveChangesAsync(ct);
             await _unitOfWork.CommitAsync(ct);
@@ -95,22 +126,24 @@ public class OrderService : IOrderService
         if (orderDto.CustomerId != customerId)
             throw new UnauthorizedAccessException("Cannot cancel an order belonging to another customer.");
 
+        orderDto.Items = (await _unitOfWork.OrderItemRepository.QueryAsync(i => i.OrderId == orderDto.Id, ct, i => i.Product!)).ToList();
+
         try
         {
             await _unitOfWork.BeginTransactionAsync(ct);
 
             var orderEntity = _mapper.Map<Order>(orderDto);
 
-            //foreach (var item in orderEntity.Items)
-            //{
-            //    //var productDto = await _unitOfWork.ProductRepository.GetByIdAsync(item.CartItem.Product.Id, ct);
-            //    //if (productDto != null)
-            //    //{
-            //    //    var productEntity = _mapper.Map<Product>(productDto);
-            //    //    Product.UpdateStock(productEntity, productEntity.Stock + item.Quantity);
-            //    //    _mapper.Map(productEntity, productDto);
-            //    }
-            //}
+            foreach (var item in orderEntity.Items)
+            {
+                var productDto = await _unitOfWork.ProductRepository.GetByIdAsync(item.ProductId, ct);
+                if (productDto != null)
+                {
+                    var productEntity = _mapper.Map<Product>(productDto);
+                    Product.UpdateStock(productEntity, productEntity.Stock + item.Quantity);
+                    await _productService.UpdateMainProductStockAsync(productDto, productEntity, ct);
+                }
+            }
 
             _unitOfWork.OrderRepository.Delete(orderDto);
 

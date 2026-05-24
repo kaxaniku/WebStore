@@ -17,7 +17,7 @@ public sealed class OrderDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(OrderDbContext).Assembly,
-            type => type.Namespace == "WebStore.Infrastructure.Repositories.EntityConfigurations"
+            type => type.Namespace == "WebStore.OrderInfrastructure.Repositories.EntityConfigurations"
         );
 
         modelBuilder.AddTransactionalOutboxEntities();

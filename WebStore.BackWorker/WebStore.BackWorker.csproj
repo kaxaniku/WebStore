@@ -20,6 +20,8 @@
     <ProjectReference Include="..\Webstore.CatalogService\Webstore.CatalogInfrastructure.csproj" />
     <ProjectReference Include="..\WebStore.Contracts\WebStore.Contracts.csproj" />
     <ProjectReference Include="..\WebStore.NotificationService\WebStore.NotificationService.csproj" />
+    <ProjectReference Include="..\WebStore.OrderApp\WebStore.OrderApp.csproj" />
+    <ProjectReference Include="..\WebStore.OrderInfrastructure\WebStore.OrderInfrastructure.csproj" />
     <ProjectReference Include="..\WebStore.Shared\WebStore.Shared.csproj" />
     <ProjectReference Include="..\WebStore.UserInfrastructure\WebStore.UserInfrastructure.csproj" />
   </ItemGroup>

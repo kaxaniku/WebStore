@@ -2,6 +2,7 @@
 using MassTransit;
 using WebStore.CartApp.Interfaces.Services;
 using WebStore.Contracts.Catalog.Product;
+using WebStore.OrderApp.Interfaces.Services;
 
 namespace WebStore.BackWorker.Consumers.CatalogConsumers;
 
@@ -10,12 +11,14 @@ public class ProductDeletedConsumer : IConsumer<ProductDeleted>
     private readonly IBackgroundJobClient _hangfire;
     private readonly ILogger<ProductDeletedConsumer> _logger;
     private readonly ICartProductService _cartProductService;
+    private readonly IOrderProductService _orderProductService;
 
-    public ProductDeletedConsumer(IBackgroundJobClient hangfire, ILogger<ProductDeletedConsumer> logger, ICartProductService cartProductService)
+    public ProductDeletedConsumer(IBackgroundJobClient hangfire, ILogger<ProductDeletedConsumer> logger, ICartProductService cartProductService, IOrderProductService orderProductService)
     {
         _hangfire = hangfire;
         _logger = logger;
         _cartProductService = cartProductService;
+        _orderProductService = orderProductService;
     }
 
     public async Task Consume(ConsumeContext<ProductDeleted> context)
@@ -37,6 +40,7 @@ public class ProductDeletedConsumer : IConsumer<ProductDeleted>
 
         await Task.Delay(1000);
         await _cartProductService.DeleteCartProductAsync(message.Id, CancellationToken.None);
+        await _orderProductService.DeleteOrderProductAsync(message.Id, CancellationToken.None);
         _logger.LogInformation("[Hangfire Job] Successfully processed Product {Id}", message.Id);
     }
 }

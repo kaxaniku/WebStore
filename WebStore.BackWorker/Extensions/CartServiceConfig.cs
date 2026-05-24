@@ -11,7 +11,7 @@ internal static class CartServiceConfig
     {
         var config = TypeAdapterConfig.GlobalSettings;
 
-        config.Scan(typeof(UserApp.Profiles.CartProfile).Assembly);
+        config.Scan(typeof(CartApp.Profiles.CartProfile).Assembly);
         builder.Services.AddSingleton(config);
         builder.Services.AddScoped<IMapper, ServiceMapper>();
         builder.Services.AddScoped<CartApp.Interfaces.Repositories.IUnitOfWork, CartInfrastructure.Repositories.UnitOfWork>();

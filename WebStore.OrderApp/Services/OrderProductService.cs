@@ -1,22 +1,26 @@
 ﻿using MapsterMapper;
-using WebStore.CartApp.Interfaces.Repositories;
-using WebStore.CartApp.Interfaces.Services;
-using WebStore.CartDomain.Entities;
+using MassTransit;
+using WebStore.Contracts.Catalog.Product;
+using WebStore.OrderApp.Interfaces.Repositories;
+using WebStore.OrderApp.Interfaces.Services;
+using WebStore.OrderDomain.Entities;
 
-namespace WebStore.CartApp.Services;
+namespace WebStore.OrderApp.Services;
 
-public class CartProductService : ICartProductService
+public class OrderProductService : IOrderProductService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public CartProductService(IUnitOfWork unitOfWork, IMapper mapper)
+    public OrderProductService(IUnitOfWork unitOfWork, IMapper mapper, IPublishEndpoint publishEndpoint)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _publishEndpoint = publishEndpoint;
     }
 
-    public async Task<int> CreateCartProductAsync(int id, string name, decimal price, int quantity, CancellationToken ct)
+    public async Task<int> CreateOrderProductAsync(int id, string name, decimal price, int quantity, CancellationToken ct)
     {
         var existingProductDto = await _unitOfWork.ProductRepository.GetByIdAsync(id, ct);
 
@@ -44,21 +48,12 @@ public class CartProductService : ICartProductService
         }
     }
 
-    public async Task DeleteCartProductAsync(int id, CancellationToken ct)
+    public async Task DeleteOrderProductAsync(int id, CancellationToken ct)
     {
         var productDto = await _unitOfWork.ProductRepository.GetByIdAsync(id, ct)
             ?? throw new KeyNotFoundException("Product not found");
 
         _unitOfWork.ProductRepository.Delete(productDto);
-        await _unitOfWork.CartItemRepository.QueryAsync(ci => ci.ProductId == id, ct)
-            .ContinueWith(t =>
-            {
-                var cartItems = t.Result;
-                foreach (var item in cartItems)
-                {
-                    _unitOfWork.CartItemRepository.Delete(item);
-                }
-            }, ct);
         await _unitOfWork.SaveChangesAsync(ct);
     }
 
@@ -94,5 +89,16 @@ public class CartProductService : ICartProductService
 
         _mapper.Map(entity, productDto);
         await _unitOfWork.SaveChangesAsync(ct);
+    }
+
+    public async Task UpdateMainProductStockAsync(DTOs.Product productDto, Product productEntity, CancellationToken ct)
+    {
+        await _publishEndpoint.Publish(new ProductUpdated
+        {
+            Id = productDto.Id,
+            Name = productEntity.Name,
+            Price = productEntity.Price,
+            Stock = productEntity.Stock
+        }, ct);
     }
 }
