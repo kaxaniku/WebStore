@@ -23,6 +23,8 @@ public class ProductService : IProductService
     {
         var productEntity = Product.Create(name, price, description, quantity, categoryId);
         var productDto = _mapper.Map<DTOs.Product>(productEntity);
+        var category = await _unitOfWork.CategoryRepository.GetByIdAsync(categoryId, ct)
+            ?? throw new KeyNotFoundException("Category not found");
 
         try
         {
@@ -90,6 +92,17 @@ public class ProductService : IProductService
         await _publishEndpoint.Publish(new ProductDeleted(id), ct);
         await _unitOfWork.SaveChangesAsync(ct);
     }
+
+    public async Task RemoveProductsByCategoryIdAsync(int categoryId, CancellationToken ct)
+    {
+        var products = await _unitOfWork.ProductRepository.QueryAsync(p => p.Category.Id == categoryId && p.Activity.IsActive, ct);
+        foreach (var product in products)
+        {
+            _unitOfWork.ProductRepository.Delete(product);
+            await _publishEndpoint.Publish(new ProductDeleted(product.Id), ct);
+        }
+        await _unitOfWork.SaveChangesAsync(ct);
+    }
     public async Task<IEnumerable<Product>> SearchProductsAsync(string productName, CancellationToken ct)
     {
         var products = await _unitOfWork.ProductRepository.QueryAsync(p => p.Name.Contains(productName), ct);
@@ -118,6 +131,18 @@ public class ProductService : IProductService
             Price = productDto.Price,
             Stock = productDto.Stock
         }, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
+    }
+
+    public async Task UpdateLocalProductStockAsync(int id, int newStock, CancellationToken ct)
+    {
+        var productDto = await _unitOfWork.ProductRepository.GetByIdAsync(id, ct)
+            ?? throw new KeyNotFoundException("Product not found");
+
+        var entity = _mapper.Map<Product>(productDto);
+        Product.UpdateStock(entity, newStock);
+
+        _mapper.Map(entity, productDto);
         await _unitOfWork.SaveChangesAsync(ct);
     }
 

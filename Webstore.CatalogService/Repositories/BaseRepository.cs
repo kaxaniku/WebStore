@@ -26,6 +26,16 @@ internal abstract class BaseRepository<T> : IDisposable, IAsyncDisposable, IBase
     public async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
         ThrowIfDisposed();
+
+        if (typeof(IDisable).IsAssignableFrom(typeof(T)))
+        {
+            return await _dbSet
+                .FirstOrDefaultAsync(e =>
+                    EF.Property<int>(e, "Id") == id &&
+                    ((IDisable)e).Activity.IsActive != false,
+                    cancellationToken);
+        }
+
         return await _dbSet.FindAsync(id, cancellationToken);
     }
 

@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using WebStore.BackWorker.Consumers.CartConsumers;
 using WebStore.BackWorker.Consumers.CatalogConsumers;
 using WebStore.BackWorker.Consumers.UserConsumers;
 
@@ -19,6 +20,7 @@ internal static class MassTransitConfig
             x.AddConsumer<ProductUpdatedConsumer>();
             x.AddConsumer<AdminRegisteredConsumer>();
             x.AddConsumer<GetCartRequestConsumer>();
+            x.AddConsumer<ClearCartRequestConsumer>();
 
             x.UsingRabbitMq((context, cfg) =>
             {

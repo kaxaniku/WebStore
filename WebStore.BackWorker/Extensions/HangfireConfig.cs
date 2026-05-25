@@ -13,7 +13,7 @@ internal static class HangfireConfig
             .UseSqlServerStorage(connectionString));
         builder.Services.AddHangfireServer(options =>
         {
-            options.WorkerCount = 1;
+            options.WorkerCount = 5;
         });
     }
 }

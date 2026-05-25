@@ -62,18 +62,22 @@ public class OrderService : IOrderService
     public async Task<int> PlaceOrderAsync(int customerId, CancellationToken ct)
     {
         var orderEntity = await CreateOrderAsync(customerId, ct);
-        _unitOfWork.ClearTracker();
         var orderDto = _mapper.Map<DTOs.Order>(orderEntity);
-        var orderItemDtos = _mapper.Map<IEnumerable<DTOs.OrderItem>>(orderEntity.Items);
+        orderDto.Items = null;
 
         try
         {
             await _unitOfWork.BeginTransactionAsync(ct);
-
             await _unitOfWork.OrderRepository.InsertAsync(orderDto, ct);
+            await _unitOfWork.SaveChangesAsync(ct);
+
+            Order.SetId(orderEntity, orderDto.Id);
+
+            var orderItemDtos = _mapper.Map<IEnumerable<DTOs.OrderItem>>(orderEntity.Items);
 
             foreach (var itemDto in orderItemDtos)
             {
+                itemDto.OrderId = orderDto.Id;
                 itemDto.Order = null;
                 itemDto.Product = null;
                 await _unitOfWork.OrderItemRepository.InsertAsync(itemDto, ct);
@@ -87,8 +91,7 @@ public class OrderService : IOrderService
             }
 
             await _unitOfWork.SaveChangesAsync(ct);
-            Order.SetId(orderEntity, orderDto.Id);
-            await _publishEndpoint.Publish(new ClearCartRequest(orderEntity.CustomerId), ct);
+            await _publishEndpoint.Publish(new ClearCartRequest(customerId), ct);
 
             await _unitOfWork.SaveChangesAsync(ct);
             await _unitOfWork.CommitAsync(ct);
@@ -104,7 +107,7 @@ public class OrderService : IOrderService
 
     public async Task<IEnumerable<Order>> GetMyOrdersAsync(int customerId, CancellationToken ct)
     {
-        var orderDtos = await _unitOfWork.OrderRepository.QueryAsync(o => o.CustomerId == customerId, ct);
+        var orderDtos = await _unitOfWork.OrderRepository.QueryAsync(o => o.CustomerId == customerId, ct, o => o.Items!);
         return _mapper.Map<IEnumerable<Order>>(orderDtos);
     }
 
@@ -114,6 +117,7 @@ public class OrderService : IOrderService
 
         if (orderDto == null || orderDto.CustomerId != customerId)
             throw new KeyNotFoundException("Order not found or access denied.");
+        orderDto.Items = (await _unitOfWork.OrderItemRepository.QueryAsync(i => i.OrderId == orderId, ct, i => i.Product!)).ToList();
 
         return _mapper.Map<Order>(orderDto);
     }

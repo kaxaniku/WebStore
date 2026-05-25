@@ -12,11 +12,13 @@ public class CategoryService : ICategoryService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IProductService _productService;
 
-    public CategoryService(IUnitOfWork unitOfWork, IMapper mapper, IPublishEndpoint publishEndpoint)
+    public CategoryService(IUnitOfWork unitOfWork, IMapper mapper, IPublishEndpoint publishEndpoint, IProductService productService)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         _publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
     }
 
@@ -75,6 +77,7 @@ public class CategoryService : ICategoryService
         if (dto == null)
             throw new KeyNotFoundException($"Category with ID {id} not found.");
         _unitOfWork.CategoryRepository.Delete(dto);
+        await _productService.RemoveProductsByCategoryIdAsync(id, ct);
         await _publishEndpoint.Publish(new CategoryDeleted(dto.Id), ct);
         await _unitOfWork.SaveChangesAsync(ct);
     }

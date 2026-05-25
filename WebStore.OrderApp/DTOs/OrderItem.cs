@@ -17,5 +17,5 @@ public sealed class OrderItem
     public int Quantity { get; set; }
 
     [Column(TypeName = "MONEY")]
-    public decimal ItemPrice { get; set; }
+    public decimal UnitPrice { get; set; }
 }
