@@ -18,6 +18,6 @@ internal static class EmailConfig
         };
         var options = Options.Create(settings);
         var emailService = new EmailService(options);
-        builder.Services.AddScoped<IEmailService>(_ => emailService);
+        builder.Services.AddTransient<IEmailService>(_ => emailService);
     }
 }

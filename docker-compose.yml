@@ -1,0 +1,102 @@
+﻿version: '3.8'
+
+services:
+  # 1. მონაცემთა ბაზა (ერთი MS SQL კონტეინერი, სადაც ყველა DbContext თავის ბაზას შექმნის)
+  webstore-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: webstore_db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrong@Password123
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+
+  # 2. RabbitMQ შეტყობინებებისთვის
+  webstore-rabbitmq:
+    image: rabbitmq:3-management
+    container_name: webstore_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  # 3. Catalog API
+  catalog-api:
+    image: catalog-api:latest
+    build:
+      context: .
+      dockerfile: WebStore.CatalogAPI/Dockerfile
+    ports:
+      - "5001:8080"
+    environment:
+      - ConnectionStrings__Default=Server=webstore-db;Database=CatalogDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;
+      - ConnectionStrings__HangFireConnection=Server=webstore-db;Database=HangfireDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;
+    depends_on:
+      - webstore-db
+
+  # 4. Cart API
+  cart-api:
+    image: cart-api:latest
+    build:
+      context: .
+      dockerfile: WebStore.CartAPI/Dockerfile
+    ports:
+      - "5002:8080"
+    environment:
+      - ConnectionStrings__Default=Server=webstore-db;Database=CartDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;
+      - ConnectionStrings__HangFireConnection=Server=webstore-db;Database=HangfireDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;
+    depends_on:
+      - webstore-db
+
+  # 5. Order API
+  order-api:
+    image: order-api:latest
+    build:
+      context: .
+      dockerfile: WebStore.OrderAPI/Dockerfile
+    ports:
+      - "5003:8080"
+    environment:
+      - ConnectionStrings__Default=Server=webstore-db;Database=OrderDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;
+      - ConnectionStrings__HangFireConnection=Server=webstore-db;Database=HangfireDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;
+    depends_on:
+      - webstore-db
+
+  # 6. User API
+  user-api:
+    image: user-api:latest
+    build:
+      context: .
+      dockerfile: WebStore.UserAPI/Dockerfile
+    ports:
+      - "5004:8080"
+    environment:
+      - ConnectionStrings__Default=Server=webstore-db;Database=UserDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;
+      - ConnectionStrings__HangFireConnection=Server=webstore-db;Database=HangfireDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;
+    depends_on:
+      - webstore-db
+
+  # 7. BackWorker (აქ მუშაობს მასტრანზიტის კონსუმერები და ჰანგფაიერი)
+  back-worker:
+    image: back-worker:latest
+    build:
+      context: .
+      dockerfile: WebStore.BackWorker/Dockerfile
+    environment:
+      - ConnectionStrings__Default=Server=webstore-db;Database=HangfireDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;
+      - RabbitMQ__Host=webstore-rabbitmq
+
+      - Email__SmtpServer=smtp.gmail.com
+      - Email__SmtpPort=587
+      - Email__FromAddress=knindustrybank@gmail.com
+      - Email__Password=mhwg rwoe bkek svhs
+    depends_on:
+      - webstore-db
+      - webstore-rabbitmq
+
+volumes:
+  mssql_data:

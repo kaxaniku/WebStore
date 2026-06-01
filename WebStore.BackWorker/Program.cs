@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Serilog;
 using WebStore.BackWorker.Extensions;
 
@@ -9,6 +9,13 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = Host.CreateApplicationBuilder(args);
+        builder.Configuration.AddEnvironmentVariables();
+
+        builder.Services.Configure<HostOptions>(options =>
+        {
+            options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.StopHost;
+        });
+
         var connectionString = builder.Configuration.GetConnectionString("Default");
 
         Log.Logger = new LoggerConfiguration()
