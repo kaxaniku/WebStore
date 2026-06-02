@@ -1,15 +1,11 @@
 ﻿using Mapster;
 using MapsterMapper;
 using MassTransit;
-using MassTransit.EntityFrameworkCoreIntegration;
-using MassTransit.Testing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Webstore.CatalogInfrastructure.Repositories;
 using WebStore.CatalogApp.Interfaces.Repositories;
 using WebStore.CatalogApp.Profiles;
-using WebStore.CatalogApp.Services;
 
 namespace WebStore.CatalogTests;
 

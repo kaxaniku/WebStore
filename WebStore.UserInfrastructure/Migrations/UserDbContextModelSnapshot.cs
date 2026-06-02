@@ -169,10 +169,6 @@ namespace WebStore.UserInfrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("BusName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
@@ -193,8 +189,6 @@ namespace WebStore.UserInfrastructure.Migrations
                     b.HasKey("OutboxId");
 
                     b.HasIndex("Created");
-
-                    b.HasIndex("BusName", "Created");
 
                     b.ToTable("OutboxState");
                 });

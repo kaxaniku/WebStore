@@ -30,10 +30,7 @@ namespace WebStore.UserAPI
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Default"),
                     sqlServerOptionsAction: sqlOptions =>
                     {
-                        sqlOptions.EnableRetryOnFailure(
-                            maxRetryCount: 10,
-                            maxRetryDelay: TimeSpan.FromSeconds(5),
-                            errorNumbersToAdd: null);
+                        sqlOptions.MigrationsAssembly("WebStore.UserInfrastructure");
                     }));
             builder.Services.RegisterMaps();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -79,11 +76,7 @@ namespace WebStore.UserAPI
             //    app.UseSwaggerUI();
             //}
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebStore API v1");
-                c.RoutePrefix = "swagger";
-            });
+            app.UseSwaggerUI();
 
             app.UseExceptionHandler();
 
@@ -93,22 +86,6 @@ namespace WebStore.UserAPI
 
 
             app.MapControllers();
-
-            using (var scope = app.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-                try
-                {
-                    var context = services.GetRequiredService<UserDbContext>();
-
-                    context.Database.Migrate();
-                }
-                catch (Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred while migrating the database.");
-                }
-            }
 
             app.Run();
         }

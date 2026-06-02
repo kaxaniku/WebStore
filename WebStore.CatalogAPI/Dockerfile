@@ -17,7 +17,7 @@ COPY ["WebStore.CatalogApp/WebStore.CatalogApp.csproj", "WebStore.CatalogApp/"]
 COPY ["WebStore.CatalogDomain/WebStore.CatalogDomain.csproj", "WebStore.CatalogDomain/"]
 COPY ["WebStore.Contracts/WebStore.Contracts.csproj", "WebStore.Contracts/"]
 COPY ["WebStore.Shared/WebStore.Shared.csproj", "WebStore.Shared/"]
-COPY ["Webstore.CatalogService/Webstore.CatalogInfrastructure.csproj", "Webstore.CatalogService/"]
+COPY ["Webstore.CatalogInfrastructure/Webstore.CatalogInfrastructure.csproj", "Webstore.CatalogInfrastructure/"]
 RUN dotnet restore "./WebStore.CatalogAPI/WebStore.CatalogAPI.csproj"
 COPY . .
 WORKDIR "/src/WebStore.CatalogAPI"

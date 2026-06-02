@@ -4,17 +4,20 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using WebStore.OrderInfrastructure.Repositories;
+using WebStore.CartInfrastructure.Repositories;
 
 #nullable disable
 
-namespace WebStore.OrderInfrastructure.Migrations
+namespace WebStore.CartInfrastructure.Migrations
 {
-    [DbContext(typeof(OrderDbContext))]
-    partial class OrderDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(CartDbContext))]
+    [Migration("20260602151615_whatsNew")]
+    partial class whatsNew
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -193,29 +196,17 @@ namespace WebStore.OrderInfrastructure.Migrations
                     b.ToTable("OutboxState");
                 });
 
-            modelBuilder.Entity("WebStore.OrderApp.DTOs.Order", b =>
+            modelBuilder.Entity("WebStore.CartApp.DTOs.Cart", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("OrderProcessedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("TotalPrice")
-                        .HasColumnType("MONEY");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Carts");
                 });
 
-            modelBuilder.Entity("WebStore.OrderApp.DTOs.OrderItem", b =>
+            modelBuilder.Entity("WebStore.CartApp.DTOs.CartItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -223,8 +214,11 @@ namespace WebStore.OrderInfrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("OrderId")
+                    b.Property<int>("CartId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("ItemAddedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
@@ -232,19 +226,45 @@ namespace WebStore.OrderInfrastructure.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("MONEY");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId");
+                    b.HasIndex("CartId");
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("CartItems");
                 });
 
-            modelBuilder.Entity("WebStore.OrderApp.DTOs.Product", b =>
+            modelBuilder.Entity("WebStore.CartApp.DTOs.Customer", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("VARCHAR");
+
+                    b.ComplexProperty<Dictionary<string, object>>("Activity", "WebStore.CartApp.DTOs.Customer.Activity#ActivityInfo", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<DateTime>("CreateDate")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<bool>("IsActive")
+                                .HasColumnType("bit");
+
+                            b1.Property<DateTime?>("UpdateDate")
+                                .HasColumnType("datetime2");
+                        });
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Customers");
+                });
+
+            modelBuilder.Entity("WebStore.CartApp.DTOs.Product", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int");
@@ -260,7 +280,7 @@ namespace WebStore.OrderInfrastructure.Migrations
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Activity", "WebStore.OrderApp.DTOs.Product.Activity#ActivityInfo", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("Activity", "WebStore.CartApp.DTOs.Product.Activity#ActivityInfo", b1 =>
                         {
                             b1.IsRequired();
 
@@ -291,26 +311,37 @@ namespace WebStore.OrderInfrastructure.Migrations
                         .HasPrincipalKey("MessageId", "ConsumerId");
                 });
 
-            modelBuilder.Entity("WebStore.OrderApp.DTOs.OrderItem", b =>
+            modelBuilder.Entity("WebStore.CartApp.DTOs.Cart", b =>
                 {
-                    b.HasOne("WebStore.OrderApp.DTOs.Order", "Order")
-                        .WithMany("Items")
-                        .HasForeignKey("OrderId")
+                    b.HasOne("WebStore.CartApp.DTOs.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WebStore.OrderApp.DTOs.Product", "Product")
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("WebStore.CartApp.DTOs.CartItem", b =>
+                {
+                    b.HasOne("WebStore.CartApp.DTOs.Cart", "Cart")
+                        .WithMany("Items")
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebStore.CartApp.DTOs.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Order");
+                    b.Navigation("Cart");
 
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("WebStore.OrderApp.DTOs.Order", b =>
+            modelBuilder.Entity("WebStore.CartApp.DTOs.Cart", b =>
                 {
                     b.Navigation("Items");
                 });

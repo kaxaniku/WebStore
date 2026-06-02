@@ -4,17 +4,20 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using WebStore.OrderInfrastructure.Repositories;
+using WebStore.UserInfrastructure.Repositories;
 
 #nullable disable
 
-namespace WebStore.OrderInfrastructure.Migrations
+namespace WebStore.UserInfrastructure.Migrations
 {
-    [DbContext(typeof(OrderDbContext))]
-    partial class OrderDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(UserDbContext))]
+    [Migration("20260602151810_whatsNew")]
+    partial class whatsNew
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -193,7 +196,17 @@ namespace WebStore.OrderInfrastructure.Migrations
                     b.ToTable("OutboxState");
                 });
 
-            modelBuilder.Entity("WebStore.OrderApp.DTOs.Order", b =>
+            modelBuilder.Entity("WebStore.UserApp.DTOs.Cart", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Carts");
+                });
+
+            modelBuilder.Entity("WebStore.UserApp.DTOs.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -201,66 +214,36 @@ namespace WebStore.OrderInfrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("VARCHAR");
 
-                    b.Property<DateTime>("OrderProcessedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<decimal>("TotalPrice")
-                        .HasColumnType("MONEY");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("WebStore.OrderApp.DTOs.OrderItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("MONEY");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("OrderItems");
-                });
-
-            modelBuilder.Entity("WebStore.OrderApp.DTOs.Product", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
+                    b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("VARCHAR");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("MONEY");
+                    b.HasKey("Id");
 
-                    b.Property<int>("Stock")
-                        .HasColumnType("int");
+                    b.HasIndex("Username")
+                        .IsUnique();
 
-                    b.ComplexProperty<Dictionary<string, object>>("Activity", "WebStore.OrderApp.DTOs.Product.Activity#ActivityInfo", b1 =>
+                    b.ToTable("Users", (string)null);
+
+                    b.UseTptMappingStrategy();
+                });
+
+            modelBuilder.Entity("WebStore.UserApp.DTOs.Admin", b =>
+                {
+                    b.HasBaseType("WebStore.UserApp.DTOs.User");
+
+                    b.ComplexProperty<Dictionary<string, object>>("Activity", "WebStore.UserApp.DTOs.Admin.Activity#ActivityInfo", b1 =>
                         {
                             b1.IsRequired();
 
@@ -274,9 +257,28 @@ namespace WebStore.OrderInfrastructure.Migrations
                                 .HasColumnType("datetime2");
                         });
 
-                    b.HasKey("Id");
+                    b.ToTable("Admins", (string)null);
+                });
 
-                    b.ToTable("Products");
+            modelBuilder.Entity("WebStore.UserApp.DTOs.Customer", b =>
+                {
+                    b.HasBaseType("WebStore.UserApp.DTOs.User");
+
+                    b.ComplexProperty<Dictionary<string, object>>("Activity", "WebStore.UserApp.DTOs.Customer.Activity#ActivityInfo", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<DateTime>("CreateDate")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<bool>("IsActive")
+                                .HasColumnType("bit");
+
+                            b1.Property<DateTime?>("UpdateDate")
+                                .HasColumnType("datetime2");
+                        });
+
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
@@ -291,28 +293,33 @@ namespace WebStore.OrderInfrastructure.Migrations
                         .HasPrincipalKey("MessageId", "ConsumerId");
                 });
 
-            modelBuilder.Entity("WebStore.OrderApp.DTOs.OrderItem", b =>
+            modelBuilder.Entity("WebStore.UserApp.DTOs.Cart", b =>
                 {
-                    b.HasOne("WebStore.OrderApp.DTOs.Order", "Order")
-                        .WithMany("Items")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WebStore.OrderApp.DTOs.Product", "Product")
+                    b.HasOne("WebStore.UserApp.DTOs.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Order");
-
-                    b.Navigation("Product");
+                    b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("WebStore.OrderApp.DTOs.Order", b =>
+            modelBuilder.Entity("WebStore.UserApp.DTOs.Admin", b =>
                 {
-                    b.Navigation("Items");
+                    b.HasOne("WebStore.UserApp.DTOs.User", null)
+                        .WithOne()
+                        .HasForeignKey("WebStore.UserApp.DTOs.Admin", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WebStore.UserApp.DTOs.Customer", b =>
+                {
+                    b.HasOne("WebStore.UserApp.DTOs.User", null)
+                        .WithOne()
+                        .HasForeignKey("WebStore.UserApp.DTOs.Customer", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

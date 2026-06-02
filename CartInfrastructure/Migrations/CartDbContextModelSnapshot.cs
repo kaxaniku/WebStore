@@ -67,7 +67,7 @@ namespace WebStore.CartInfrastructure.Migrations
 
                     b.HasIndex("Delivered");
 
-                    b.ToTable("InboxState", (string)null);
+                    b.ToTable("InboxState");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
@@ -160,7 +160,7 @@ namespace WebStore.CartInfrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[InboxMessageId] IS NOT NULL AND [InboxConsumerId] IS NOT NULL");
 
-                    b.ToTable("OutboxMessage", (string)null);
+                    b.ToTable("OutboxMessage");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxState", b =>
@@ -168,10 +168,6 @@ namespace WebStore.CartInfrastructure.Migrations
                     b.Property<Guid>("OutboxId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("BusName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
@@ -194,9 +190,7 @@ namespace WebStore.CartInfrastructure.Migrations
 
                     b.HasIndex("Created");
 
-                    b.HasIndex("BusName", "Created");
-
-                    b.ToTable("OutboxState", (string)null);
+                    b.ToTable("OutboxState");
                 });
 
             modelBuilder.Entity("WebStore.CartApp.DTOs.Cart", b =>
@@ -206,7 +200,7 @@ namespace WebStore.CartInfrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Carts", (string)null);
+                    b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("WebStore.CartApp.DTOs.CartItem", b =>
@@ -235,7 +229,7 @@ namespace WebStore.CartInfrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("CartItems", (string)null);
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("WebStore.CartApp.DTOs.Customer", b =>
@@ -264,7 +258,7 @@ namespace WebStore.CartInfrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Customers", (string)null);
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("WebStore.CartApp.DTOs.Product", b =>
@@ -299,7 +293,7 @@ namespace WebStore.CartInfrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
@@ -328,7 +322,7 @@ namespace WebStore.CartInfrastructure.Migrations
             modelBuilder.Entity("WebStore.CartApp.DTOs.CartItem", b =>
                 {
                     b.HasOne("WebStore.CartApp.DTOs.Cart", "Cart")
-                        .WithMany()
+                        .WithMany("Items")
                         .HasForeignKey("CartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -342,6 +336,11 @@ namespace WebStore.CartInfrastructure.Migrations
                     b.Navigation("Cart");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("WebStore.CartApp.DTOs.Cart", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

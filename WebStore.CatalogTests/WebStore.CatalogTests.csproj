@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WebStore.CatalogApp\WebStore.CatalogApp.csproj" />
-    <ProjectReference Include="..\Webstore.CatalogService\Webstore.CatalogInfrastructure.csproj" />
+    <ProjectReference Include="..\Webstore.CatalogInfrastructure\Webstore.CatalogInfrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -30,10 +30,7 @@ namespace WebStore.CatalogAPI
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Default"),
                     sqlServerOptionsAction: sqlOptions =>
                     {
-                        sqlOptions.EnableRetryOnFailure(
-                            maxRetryCount: 10,
-                            maxRetryDelay: TimeSpan.FromSeconds(5),
-                            errorNumbersToAdd: null);
+                        sqlOptions.MigrationsAssembly("WebStore.CatalogInfrastructure");
                     }));
             builder.Services.RegisterMaps();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -78,11 +75,8 @@ namespace WebStore.CatalogAPI
             //    app.UseSwagger();
             //    app.UseSwaggerUI();
             //}
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebStore API v1");
-                c.RoutePrefix = "swagger";
-            });
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
             app.UseExceptionHandler();
 
@@ -92,22 +86,6 @@ namespace WebStore.CatalogAPI
 
 
             app.MapControllers();
-
-            using (var scope = app.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-                try
-                {
-                    var context = services.GetRequiredService<CatalogDbContext>();
-
-                    context.Database.Migrate();
-                }
-                catch (Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred while migrating the database.");
-                }
-            }
 
             app.Run();
         }
