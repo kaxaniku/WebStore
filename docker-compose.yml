@@ -18,9 +18,10 @@ services:
   webstore-rabbitmq:
     image: rabbitmq:3-management
     container_name: webstore_rabbitmq
+    command: rabbitmq-server --rabbit vm_memory_high_watermark 0.6
     ports:
       - "5672:5672"
-      - "15672:15672"
+      - "15673:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
@@ -36,6 +37,7 @@ services:
     environment:
       - ConnectionStrings__Default=Server=webstore-db;Database=CatalogDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;
       - ConnectionStrings__HangFireConnection=Server=webstore-db;Database=HangfireDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;
+      - RabbitMQ__Host=webstore-rabbitmq
     depends_on:
       - webstore-db
 
@@ -50,6 +52,7 @@ services:
     environment:
       - ConnectionStrings__Default=Server=webstore-db;Database=CartDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;
       - ConnectionStrings__HangFireConnection=Server=webstore-db;Database=HangfireDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;
+      - RabbitMQ__Host=webstore-rabbitmq
     depends_on:
       - webstore-db
 
@@ -64,6 +67,7 @@ services:
     environment:
       - ConnectionStrings__Default=Server=webstore-db;Database=OrderDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;
       - ConnectionStrings__HangFireConnection=Server=webstore-db;Database=HangfireDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;
+      - RabbitMQ__Host=webstore-rabbitmq
     depends_on:
       - webstore-db
 
@@ -78,6 +82,7 @@ services:
     environment:
       - ConnectionStrings__Default=Server=webstore-db;Database=UserDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;
       - ConnectionStrings__HangFireConnection=Server=webstore-db;Database=HangfireDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;
+      - RabbitMQ__Host=webstore-rabbitmq
     depends_on:
       - webstore-db
 
@@ -89,7 +94,12 @@ services:
       dockerfile: WebStore.BackWorker/Dockerfile
     environment:
       - ConnectionStrings__Default=Server=webstore-db;Database=HangfireDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;
+      - ConnectionStrings__UserDb=Server=webstore-db;Database=UserDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;
+      - ConnectionStrings__CartDb=Server=webstore-db;Database=CartDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;
+      - ConnectionStrings__OrderDb=Server=webstore-db;Database=OrderDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;
+      - ConnectionStrings__CatalogDb=Server=webstore-db;Database=CatalogDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;
       - RabbitMQ__Host=webstore-rabbitmq
+      - DOTNET_OUTPUT_BUFFERING=0
 
       - Email__SmtpServer=smtp.gmail.com
       - Email__SmtpPort=587
@@ -102,6 +112,10 @@ services:
   #Migrations
   catalog-db-migrator:
     image: mcr.microsoft.com/dotnet/sdk:8.0
+    deploy:
+      resources:
+        limits:
+          memory: 1gb
     container_name: catalog_db_migrator
     volumes:
       - .:/src
@@ -111,9 +125,8 @@ services:
     command: >
       bash -c "
       dotnet tool install --global dotnet-ef --version 8.0.0 &&
-      export PATH=\"$$PATH:$$HOME/.dotnet/tools\" &&
-      dotnet restore &&
-      dotnet ef database update --project Webstore.CatalogInfrastructure/Webstore.CatalogInfrastructure.csproj --startup-project WebStore.CatalogAPI/WebStore.CatalogAPI.csproj --connection 'Server=webstore-db,1433;Database=CatalogDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;'"
+      export PATH=\"$$PATH:/root/.dotnet/tools\" &&
+      dotnet ef database update --no-build --project Webstore.CatalogInfrastructure/Webstore.CatalogInfrastructure.csproj --startup-project WebStore.CatalogAPI/WebStore.CatalogAPI.csproj --connection 'Server=webstore-db,1433;Database=CatalogDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;'"
     
   user-db-migrator:
     image: mcr.microsoft.com/dotnet/sdk:8.0
@@ -126,9 +139,8 @@ services:
     command: >
       bash -c "
       dotnet tool install --global dotnet-ef --version 8.0.0 &&
-      export PATH=\"$$PATH:$$HOME/.dotnet/tools\" &&
-      dotnet restore &&
-      dotnet ef database update --project Webstore.UserInfrastructure/Webstore.UserInfrastructure.csproj --startup-project WebStore.UserAPI/WebStore.UserAPI.csproj --connection 'Server=webstore-db,1433;Database=UserDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;'"
+      export PATH=\"$$PATH:/root/.dotnet/tools\" &&
+      dotnet ef database update --no-build --project Webstore.UserInfrastructure/Webstore.UserInfrastructure.csproj --startup-project WebStore.UserAPI/WebStore.UserAPI.csproj --connection 'Server=webstore-db,1433;Database=UserDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;'"
 
   cart-db-migrator:
     image: mcr.microsoft.com/dotnet/sdk:8.0
@@ -141,9 +153,8 @@ services:
     command: >
       bash -c "
       dotnet tool install --global dotnet-ef --version 8.0.0 &&
-      export PATH=\"$$PATH:$$HOME/.dotnet/tools\" &&
-      dotnet restore &&
-      dotnet ef database update --project CartInfrastructure/WebStore.CartInfrastructure.csproj --startup-project WebStore.CartAPI/WebStore.CartAPI.csproj --connection 'Server=webstore-db,1433;Database=CartDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;'"
+      export PATH=\"$$PATH:/root/.dotnet/tools\" &&
+      dotnet ef database update --no-build --project CartInfrastructure/WebStore.CartInfrastructure.csproj --startup-project WebStore.CartAPI/WebStore.CartAPI.csproj --connection 'Server=webstore-db,1433;Database=CartDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;'"
   
   order-db-migrator:
     image: mcr.microsoft.com/dotnet/sdk:8.0
@@ -156,9 +167,8 @@ services:
     command: >
       bash -c "
       dotnet tool install --global dotnet-ef --version 8.0.0 &&
-      export PATH=\"$$PATH:$$HOME/.dotnet/tools\" &&
-      dotnet restore &&
-      dotnet ef database update --project Webstore.OrderInfrastructure/Webstore.OrderInfrastructure.csproj --startup-project WebStore.OrderAPI/WebStore.OrderAPI.csproj --connection 'Server=webstore-db,1433;Database=OrderDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;'"
+      export PATH=\"$$PATH:/root/.dotnet/tools\" &&
+      dotnet ef database update --no-build --project Webstore.OrderInfrastructure/Webstore.OrderInfrastructure.csproj --startup-project WebStore.OrderAPI/WebStore.OrderAPI.csproj --connection 'Server=webstore-db,1433;Database=OrderDb;User Id=sa;Password=WebStorePassword2026;TrustServerCertificate=True;'"
 
 volumes:
   mssql_data:

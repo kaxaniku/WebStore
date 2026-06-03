@@ -19,6 +19,12 @@ namespace WebStore.CatalogAPI
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.AddConfiguration(builder.Configuration.GetSection("Logging"));
+                loggingBuilder.AddConsole();
+                loggingBuilder.AddDebug();
+            });
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -47,7 +53,8 @@ namespace WebStore.CatalogAPI
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
-                    cfg.Host("localhost", "/", h =>
+                    var rabbitHost = builder.Configuration["RabbitMQ:Host"] ?? "localhost";
+                    cfg.Host(rabbitHost, "/", h =>
                     {
                         h.Username("guest");
                         h.Password("guest");
@@ -62,12 +69,15 @@ namespace WebStore.CatalogAPI
                 .UseRecommendedSerializerSettings()
                 .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangFireConnection")));
 
-            builder.AddSerilogLogging();
+            //builder.AddSerilogLogging();
 
             var app = builder.Build();
 
-            app.UseHangfireDashboard("/hangfire-catalog");
-            app.UseSerilogRequestLogging();
+            app.UseHangfireDashboard("/hangfire-catalog", new DashboardOptions
+            {
+                Authorization = [new DashboardNoAuthorizationFilter()]
+            });
+            //app.UseSerilogRequestLogging();
 
             // Configure the HTTP request pipeline.
             //if (app.Environment.IsDevelopment())

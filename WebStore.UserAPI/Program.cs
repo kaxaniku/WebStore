@@ -2,13 +2,13 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using WebStore.UserInfrastructure.Repositories;
-using WebStore.UserAPI.Middlewares;
 using WebStore.UserAPI.Extensions;
+using WebStore.UserAPI.Mappings;
+using WebStore.UserAPI.Middlewares;
 using WebStore.UserApp.Interfaces.Repositories;
 using WebStore.UserApp.Interfaces.Services;
-using WebStore.UserAPI.Mappings;
 using WebStore.UserApp.Services;
+using WebStore.UserInfrastructure.Repositories;
 
 namespace WebStore.UserAPI
 {
@@ -19,6 +19,12 @@ namespace WebStore.UserAPI
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.AddConfiguration(builder.Configuration.GetSection("Logging"));
+                loggingBuilder.AddConsole();
+                loggingBuilder.AddDebug();
+            });
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -47,7 +53,8 @@ namespace WebStore.UserAPI
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
-                    cfg.Host("localhost", "/", h =>
+                    var rabbitHost = builder.Configuration["RabbitMQ:Host"] ?? "localhost";
+                    cfg.Host(rabbitHost, "/", h =>
                     {
                         h.Username("guest");
                         h.Password("guest");
@@ -62,12 +69,15 @@ namespace WebStore.UserAPI
                 .UseRecommendedSerializerSettings()
                 .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangFireConnection")));
 
-            builder.AddSerilogLogging();
+            //builder.AddSerilogLogging();
 
             var app = builder.Build();
 
-            app.UseHangfireDashboard("/hangfire-user");
-            app.UseSerilogRequestLogging();
+            app.UseHangfireDashboard("/hangfire-user", new DashboardOptions
+            {
+                Authorization = [new DashboardNoAuthorizationFilter()]
+            });
+            //app.UseSerilogRequestLogging();
 
             //// Configure the HTTP request pipeline.
             //if (app.Environment.IsDevelopment())

@@ -11,6 +11,19 @@ public class Program
         var builder = Host.CreateApplicationBuilder(args);
         builder.Configuration.AddEnvironmentVariables();
 
+        //Log.Logger = new LoggerConfiguration()
+        //    .ReadFrom.Configuration(builder.Configuration)
+        //    .CreateLogger();
+
+        builder.Services.AddLogging(loggingBuilder =>
+        {
+            //loggingBuilder.ClearProviders();
+            //loggingBuilder.AddSerilog();
+            loggingBuilder.AddConfiguration(builder.Configuration.GetSection("Logging"));
+            loggingBuilder.AddConsole();
+            loggingBuilder.AddDebug();
+        });
+
         builder.Services.Configure<HostOptions>(options =>
         {
             options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.StopHost;
@@ -18,18 +31,7 @@ public class Program
 
         var connectionString = builder.Configuration.GetConnectionString("Default");
 
-        Log.Logger = new LoggerConfiguration()
-            .ReadFrom.Configuration(builder.Configuration)
-            .CreateLogger();
-
-        builder.Services.AddLogging(loggingBuilder =>
-        {
-            loggingBuilder.ClearProviders();
-            loggingBuilder.AddSerilog();
-        });
-
         builder.Services.AddHostedService<Worker>();
-        builder.ConfigureHangfire(connectionString!);
 
         builder.ConfigureContexts();
 
@@ -39,6 +41,7 @@ public class Program
         builder.ConfigureEmail();
 
         builder.ConfigureMassTransit();
+        builder.ConfigureHangfire(connectionString!);
 
         var host = builder.Build();
         host.Run();

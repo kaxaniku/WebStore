@@ -40,4 +40,9 @@ RUN dotnet publish "./WebStore.BackWorker.csproj" -c $BUILD_CONFIGURATION -o /ap
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+USER root
+RUN mkdir -p Logs && chown -R 1654:1654 Logs
+USER 1654
+
 ENTRYPOINT ["dotnet", "WebStore.BackWorker.dll"]
