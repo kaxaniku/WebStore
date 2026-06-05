@@ -36,7 +36,7 @@ namespace WebStore.CatalogAPI
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Default"),
                     sqlServerOptionsAction: sqlOptions =>
                     {
-                        sqlOptions.MigrationsAssembly("WebStore.CatalogInfrastructure");
+                        sqlOptions.MigrationsAssembly("Webstore.CatalogInfrastructure");
                     }));
             builder.Services.RegisterMaps();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -73,6 +73,24 @@ namespace WebStore.CatalogAPI
 
             var app = builder.Build();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var context = services.GetRequiredService<CatalogDbContext>();
+
+                    context.Database.Migrate();
+
+                    app.Logger.LogInformation("Database migration completed successfully.");
+                }
+                catch (Exception ex)
+                {
+                    app.Logger.LogError(ex, "An error occurred while migrating the database.");
+                    throw;
+                }
+            }
+
             app.UseHangfireDashboard("/hangfire-catalog", new DashboardOptions
             {
                 Authorization = [new DashboardNoAuthorizationFilter()]
@@ -86,7 +104,12 @@ namespace WebStore.CatalogAPI
             //    app.UseSwaggerUI();
             //}
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "WebStore Catalog API v1");
+
+                options.RoutePrefix = string.Empty;
+            });
 
             app.UseExceptionHandler();
 
