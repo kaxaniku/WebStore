@@ -73,6 +73,8 @@ namespace WebStore.OrderAPI
 
             var app = builder.Build();
 
+            app.UsePathBase("/order");
+
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;

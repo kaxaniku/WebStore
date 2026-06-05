@@ -89,6 +89,8 @@ namespace WebStore.CartAPI
                     throw;
                 }
             }
+            
+            app.UsePathBase("/cart");
 
             app.UseHangfireDashboard("/hangfire-cart", new DashboardOptions
             {

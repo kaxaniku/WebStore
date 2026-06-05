@@ -73,6 +73,8 @@ namespace WebStore.UserAPI
 
             var app = builder.Build();
 
+            app.UsePathBase("/user");
+
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
