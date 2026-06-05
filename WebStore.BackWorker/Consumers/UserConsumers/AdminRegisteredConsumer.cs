@@ -39,7 +39,7 @@ public class AdminRegisteredConsumer : IConsumer<AdminRegistered>
     {
         _logger.LogInformation("[Hangfire Job] Warmly welcoming Admin to industry {Id}", message.Id);
 
-        await _emailService.SendEmailAsync(message.Email, "Welcome to KN-Industry-WebStore", $"Thank you for registering with us dear admin {message.Username}");
+        //await _emailService.SendEmailAsync(message.Email, "Welcome to KN-Industry-WebStore", $"Thank you for registering with us dear admin {message.Username}");
         await Task.Delay(1000);
         _logger.LogInformation("[Hangfire Job] Successfully registered Admin {Id}", message.Id);
     }

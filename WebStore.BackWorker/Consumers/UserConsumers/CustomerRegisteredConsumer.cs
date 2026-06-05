@@ -39,7 +39,7 @@ public class CustomerRegisteredConsumer : IConsumer<CustomerRegistered>
     {
         _logger.LogInformation("[Hangfire Job] Warmly welcoming Customer to industry {Id}", message.Id);
 
-        await _emailService.SendEmailAsync(message.Email, "Welcome to KN-Industry-WebStore", $"Thank you for registering with us dear customer {message.Username}");
+        //await _emailService.SendEmailAsync(message.Email, "Welcome to KN-Industry-WebStore", $"Thank you for registering with us dear customer {message.Username}");
         await Task.Delay(1000);
         await _customerService.RegisterCartCustomerAsync(message.Id, message.Username, CancellationToken.None); 
         _logger.LogInformation("[Hangfire Job] Successfully registered Customer {Id}", message.Id);
