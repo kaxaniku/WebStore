@@ -73,8 +73,6 @@ namespace WebStore.CatalogAPI
 
             var app = builder.Build();
 
-            app.UsePathBase("/catalog");
-
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;

@@ -88,9 +88,7 @@ namespace WebStore.CartAPI
                     app.Logger.LogError(ex, "An error occurred while migrating the database.");
                     throw;
                 }
-            }
-            
-            app.UsePathBase("/cart");
+            }     
 
             app.UseHangfireDashboard("/hangfire-cart", new DashboardOptions
             {
@@ -107,7 +105,7 @@ namespace WebStore.CartAPI
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "WebStore Catalog API v1");
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "WebStore Cart API v1");
 
                 options.RoutePrefix = string.Empty;
             });
