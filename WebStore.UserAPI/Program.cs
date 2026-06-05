@@ -56,8 +56,8 @@ namespace WebStore.UserAPI
                     var rabbitHost = builder.Configuration["RabbitMQ:Host"] ?? "localhost";
                     cfg.Host(rabbitHost, "/", h =>
                     {
-                        h.Username("guest");
-                        h.Password("guest");
+                        h.Username("webstore_admin");
+                        h.Password("RabbitSecurePass2026!");
                     });
 
                     cfg.ConfigureEndpoints(context);

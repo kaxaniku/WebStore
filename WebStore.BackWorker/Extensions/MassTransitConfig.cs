@@ -28,8 +28,8 @@ internal static class MassTransitConfig
 
                 cfg.Host(rabbitHost, "/", h =>
                 {
-                    h.Username("guest");
-                    h.Password("guest");
+                    h.Username("webstore_admin");
+                    h.Password("RabbitSecurePass2026!");
                 });
 
                 cfg.ConfigureEndpoints(context);

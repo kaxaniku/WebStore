@@ -29,8 +29,8 @@ services:
       - "5672:5672"
       - "15673:15672"
     environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_USER=webstore_admin
+      - RABBITMQ_DEFAULT_PASS=RabbitSecurePass2026!
 
   # 3. Catalog API
   catalog-api:
