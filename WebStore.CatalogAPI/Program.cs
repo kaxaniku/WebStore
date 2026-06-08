@@ -71,6 +71,16 @@ namespace WebStore.CatalogAPI
 
             //builder.AddSerilogLogging();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("OpenPolicy", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
+
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())
@@ -114,6 +124,8 @@ namespace WebStore.CatalogAPI
             app.UseExceptionHandler();
 
             app.UseHttpsRedirection();
+
+            app.UseCors("OpenPolicy");
 
             app.UseAuthorization();
 

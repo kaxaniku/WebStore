@@ -71,6 +71,16 @@ namespace WebStore.UserAPI
 
             //builder.AddSerilogLogging();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("OpenPolicy", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
+
             var app = builder.Build();
 
             app.UsePathBase("/user");
@@ -116,6 +126,8 @@ namespace WebStore.UserAPI
             app.UseExceptionHandler();
 
             app.UseHttpsRedirection();
+
+            app.UseCors("OpenPolicy");
 
             app.UseAuthorization();
 
