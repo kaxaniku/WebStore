@@ -40,7 +40,9 @@ public class AuthService : IAuthService
         if (await ValidateCustomerCredentialsAsync(username, password, cancellationToken))
         {
             var customerDto = await _unitOfWork.CustomerRepository.GetByUsernameAsync(username, cancellationToken);
-            return Customer.Create(customerDto!.Username, customerDto!.Email, customerDto!.PasswordHash);
+            var customer = Customer.Create(customerDto!.Username, customerDto!.Email, customerDto!.PasswordHash);
+            Customer.SetId(customer, customerDto.Id);
+            return customer;
         }
         return null;
     }
@@ -50,7 +52,9 @@ public class AuthService : IAuthService
         if (await ValidateAdminCredentialsAsync(username, password, cancellationToken))
         {
             var adminDto = await _unitOfWork.AdminRepository.GetByUsernameAsync(username, cancellationToken);
-            return Admin.Create(adminDto!.Username, adminDto!.Email, adminDto!.PasswordHash);
+            var admin = Admin.Create(adminDto!.Username, adminDto!.Email, adminDto!.PasswordHash);
+            Admin.SetId(admin, adminDto.Id);
+            return admin;
         }
         return null;
     }

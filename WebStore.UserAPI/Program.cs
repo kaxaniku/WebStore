@@ -1,5 +1,6 @@
 ﻿using Hangfire;
 using MassTransit;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using WebStore.UserAPI.Extensions;
@@ -42,6 +43,7 @@ namespace WebStore.UserAPI
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
             builder.Services.AddScoped<IAdminService, AdminService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddMassTransit(x =>
             {
                 x.AddEntityFrameworkOutbox<UserDbContext>(o =>
