@@ -252,7 +252,7 @@ namespace WebStore.OrderInfrastructure.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("VARCHAR");
+                        .HasColumnType("NVARCHAR");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("MONEY");

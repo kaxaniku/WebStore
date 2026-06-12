@@ -1,5 +1,7 @@
 ﻿using MapsterMapper;
 using MassTransit;
+using Microsoft.AspNetCore.Http;
+using R2StorageApp.Interfaces;
 using WebStore.CatalogApp.Interfaces.Repositories;
 using WebStore.CatalogApp.Interfaces.Services;
 using WebStore.CatalogDomain.Entities;
@@ -12,14 +14,16 @@ public class ProductService : IProductService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IPublishEndpoint _publishEndpoint;
-    public ProductService(IUnitOfWork unitOfWork, IMapper mapper, IPublishEndpoint publishEndpoint)
+    private readonly IStorageService _storageService;
+    public ProductService(IUnitOfWork unitOfWork, IMapper mapper, IPublishEndpoint publishEndpoint, IStorageService storageService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _publishEndpoint = publishEndpoint;
+        _storageService = storageService;
     }
 
-    public async Task<int> CreateProductAsync(string name, decimal price, string? description, int quantity, int categoryId, CancellationToken ct)
+    public async Task<int> CreateProductAsync(string name, decimal price, string? description, int quantity, int categoryId, IFormFile imageFile, CancellationToken ct)
     {
         var productEntity = Product.Create(name, price, description, quantity, categoryId);
         var productDto = _mapper.Map<DTOs.Product>(productEntity);
@@ -29,6 +33,18 @@ public class ProductService : IProductService
         try
         {
             await _unitOfWork.BeginTransactionAsync(ct);
+            if (imageFile != null)
+            {
+                await _storageService.DeleteFileAsync(productDto.ImagePath);
+
+                var fn = Path.GetFileNameWithoutExtension(imageFile.FileName);
+                using var stream = imageFile.OpenReadStream();
+                string newFileName = $"Products/{fn}_{Guid.NewGuid()}{Path.GetExtension(imageFile.FileName)}";
+
+                await _storageService.UploadFileAsync(stream, newFileName, imageFile.ContentType);
+
+                productDto.ImagePath = newFileName;
+            }
             await _unitOfWork.ProductRepository.InsertAsync(productDto, ct);
             await _unitOfWork.SaveChangesAsync(ct);
             await _publishEndpoint.Publish(new ProductCreated
@@ -88,6 +104,7 @@ public class ProductService : IProductService
         var productDto = await _unitOfWork.ProductRepository.GetByIdAsync(id, ct)
             ?? throw new KeyNotFoundException("Product not found");
 
+        await _storageService.DeleteFileAsync(productDto.ImagePath);
         _unitOfWork.ProductRepository.Delete(productDto);
         await _publishEndpoint.Publish(new ProductDeleted(id), ct);
         await _unitOfWork.SaveChangesAsync(ct);
@@ -98,6 +115,7 @@ public class ProductService : IProductService
         var products = await _unitOfWork.ProductRepository.QueryAsync(p => p.Category.Id == categoryId && p.Activity.IsActive, ct);
         foreach (var product in products)
         {
+            await _storageService.DeleteFileAsync(product.ImagePath);
             _unitOfWork.ProductRepository.Delete(product);
             await _publishEndpoint.Publish(new ProductDeleted(product.Id), ct);
         }
@@ -173,5 +191,21 @@ public class ProductService : IProductService
         Product.UpdateCategory(entity, categoryId);
         _mapper.Map(entity, productDto);
         await _unitOfWork.SaveChangesAsync(ct);
+    }
+
+    public async Task UpdateProductImageAsync(int id, IFormFile imageFile, CancellationToken ct)
+    {
+        var productDto = await _unitOfWork.ProductRepository.GetByIdAsync(id, ct)
+            ?? throw new KeyNotFoundException("Product not found");
+        if (imageFile != null)
+        {
+            await _storageService.DeleteFileAsync(productDto.ImagePath);
+            var fn = Path.GetFileNameWithoutExtension(imageFile.FileName);
+            using var stream = imageFile.OpenReadStream();
+            string newFileName = $"Products/{fn}_{Guid.NewGuid()}{Path.GetExtension(imageFile.FileName)}";
+            await _storageService.UploadFileAsync(stream, newFileName, imageFile.ContentType);
+            productDto.ImagePath = newFileName;
+            await _unitOfWork.SaveChangesAsync(ct);
+        }
     }
 }

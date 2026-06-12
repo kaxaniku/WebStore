@@ -1,6 +1,7 @@
 using Hangfire;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using R2StorageApp;
 using Serilog;
 using Webstore.CatalogInfrastructure.Repositories;
 using WebStore.CatalogAPI.Extensions;
@@ -68,7 +69,7 @@ namespace WebStore.CatalogAPI
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
                 .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangFireConnection")));
-
+            builder.Services.AddR2StorageServices(builder.Configuration);
             //builder.AddSerilogLogging();
 
             builder.Services.AddCors(options =>

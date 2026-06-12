@@ -10,20 +10,21 @@ public sealed class Product : IDisable
     public int Id { get; set; }
 
     [MaxLength(20)]
-    [Column(TypeName = "VARCHAR")]
+    [Column(TypeName = "NVARCHAR")]
     public string Name { get; set; } = null!;
 
     [Column(TypeName = "MONEY")]
     public decimal Price { get; set; }
 
     [MaxLength(300)]
-    [Column(TypeName = "VARCHAR")]
+    [Column(TypeName = "NVARCHAR")]
     public string? Description { get; set; }
 
     public int Stock { get; set; }
 
     public int CategoryId { get; set; }
     public Category Category { get; set; } = null!;
+    public string ImagePath { get; set; } = null!;
 
     public ActivityInfo Activity { get; set; } = new();
 }

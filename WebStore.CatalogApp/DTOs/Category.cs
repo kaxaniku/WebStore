@@ -10,7 +10,7 @@ public sealed class Category : IDisable
     public int Id { get; set; }
 
     [MaxLength(20)]
-    [Column(TypeName = "VARCHAR")]
+    [Column(TypeName = "NVARCHAR")]
     public string Name { get; set; } = null!;
 
     public ActivityInfo Activity { get; set; } = new();

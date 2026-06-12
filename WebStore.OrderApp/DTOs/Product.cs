@@ -10,7 +10,7 @@ public sealed class Product : IDisable
     public int Id { get; set; }
 
     [MaxLength(20)]
-    [Column(TypeName = "VARCHAR")]
+    [Column(TypeName = "NVARCHAR")]
     public string Name { get; set; } = null!;
 
     [Column(TypeName = "MONEY")]

@@ -33,7 +33,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost("Create-Product")]
-    public async Task<ActionResult<int>> Create([FromBody] ProductModel request, CancellationToken ct)
+    public async Task<ActionResult<int>> Create([FromForm] ProductModel request, CancellationToken ct)
     {
         var id = await _productService.CreateProductAsync(
             request.Name,
@@ -41,6 +41,7 @@ public class ProductsController : ControllerBase
             request.Description,
             request.Stock,
             request.CategoryId,
+            request.ImageFile!,
             ct);
 
         return CreatedAtAction(nameof(GetById), new { id }, id);
@@ -85,6 +86,13 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> UpdatePrice(int id, decimal newPrice, CancellationToken ct)
     {
         await _productService.UpdateProductPriceAsync(id, newPrice, ct);
+        return NoContent();
+    }
+
+    [HttpPatch("Update-Product-Image/{id:int}")]
+    public async Task<IActionResult> UpdateImage(int id, IFormFile imageFile, CancellationToken ct)
+    {
+        await _productService.UpdateProductImageAsync(id, imageFile, ct);
         return NoContent();
     }
 }

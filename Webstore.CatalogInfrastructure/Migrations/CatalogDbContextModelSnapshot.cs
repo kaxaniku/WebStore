@@ -204,7 +204,7 @@ namespace Webstore.CatalogInfrastructure.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("VARCHAR");
+                        .HasColumnType("NVARCHAR");
 
                     b.ComplexProperty<Dictionary<string, object>>("Activity", "WebStore.CatalogApp.DTOs.Category.Activity#ActivityInfo", b1 =>
                         {
@@ -238,12 +238,16 @@ namespace Webstore.CatalogInfrastructure.Migrations
 
                     b.Property<string>("Description")
                         .HasMaxLength(300)
-                        .HasColumnType("VARCHAR");
+                        .HasColumnType("NVARCHAR");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("VARCHAR");
+                        .HasColumnType("NVARCHAR");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("MONEY");

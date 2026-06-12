@@ -240,7 +240,7 @@ namespace WebStore.CartInfrastructure.Migrations
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("VARCHAR");
+                        .HasColumnType("NVARCHAR");
 
                     b.ComplexProperty<Dictionary<string, object>>("Activity", "WebStore.CartApp.DTOs.Customer.Activity#ActivityInfo", b1 =>
                         {
@@ -269,7 +269,7 @@ namespace WebStore.CartInfrastructure.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("VARCHAR");
+                        .HasColumnType("NVARCHAR");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("MONEY");

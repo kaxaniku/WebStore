@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\R2StorageApp\R2StorageApp.csproj" />
     <ProjectReference Include="..\WebStore.CatalogApp\WebStore.CatalogApp.csproj" />
     <ProjectReference Include="..\Webstore.CatalogInfrastructure\Webstore.CatalogInfrastructure.csproj" />
     <ProjectReference Include="..\WebStore.Shared\WebStore.Shared.csproj" />

@@ -9,11 +9,11 @@ public abstract class User
     public int Id { get; set; }
 
     [MaxLength(20)]
-    [Column(TypeName = "VARCHAR")]
+    [Column(TypeName = "NVARCHAR")]
     public string Username { get; set; } = null!;
 
     [MaxLength(50)]
-    [Column(TypeName = "VARCHAR")]
+    [Column(TypeName = "NVARCHAR")]
     public string Email { get; set; } = null!;
 
     [MaxLength(100)]
