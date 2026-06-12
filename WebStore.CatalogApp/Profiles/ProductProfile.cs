@@ -12,7 +12,8 @@ public sealed class ProductProfile : IRegister
                 src.Price,
                 src.Description,
                 src.Stock,
-                src.CategoryId));
+                src.CategoryId,
+                src.ImagePath));
 
         config.NewConfig<CatalogDomain.Entities.Product, DTOs.Product>()
             .Ignore(dest => dest.Category);

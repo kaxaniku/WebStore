@@ -8,10 +8,11 @@ public sealed class Product
     public decimal Price { get; private set; }
     public string? Description { get; private set; }
     public int Stock { get; private set; }
+    public string ImagePath { get; set; } = null!;
 
     private Product() { }
 
-    public static Product Create(string name, decimal price, string? description, int quantity, int categoryId)
+    public static Product Create(string name, decimal price, string? description, int quantity, int categoryId, string imagePath = "")
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name name cannot be null or empty.", nameof(name));
@@ -27,7 +28,8 @@ public sealed class Product
             Description = description,
             Price = price,
             Stock = quantity,
-            CategoryId = categoryId
+            CategoryId = categoryId,
+            ImagePath = imagePath
         };
     }
 
@@ -66,5 +68,12 @@ public sealed class Product
             throw new ArgumentException("Stock cannot be negative.", nameof(newStock));
         product.Stock = newStock;
         return product;
+    }
+
+    public static void UpdateImagePath(Product product, string newImagePath)
+    {
+        if (string.IsNullOrWhiteSpace(newImagePath))
+            throw new ArgumentException("ImagePath cannot be null or empty.", nameof(newImagePath));
+        product.ImagePath = newImagePath;
     }
 }

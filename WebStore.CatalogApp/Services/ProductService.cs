@@ -44,6 +44,7 @@ public class ProductService : IProductService
                 await _storageService.UploadFileAsync(stream, newFileName, imageFile.ContentType);
 
                 productDto.ImagePath = newFileName;
+                Product.UpdateImagePath(productEntity, newFileName);
             }
             await _unitOfWork.ProductRepository.InsertAsync(productDto, ct);
             await _unitOfWork.SaveChangesAsync(ct);
