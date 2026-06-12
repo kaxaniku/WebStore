@@ -10,7 +10,8 @@ public sealed class ProductProfile : IRegister
             .ConstructUsing(src => CartDomain.Entities.Product.Create(
                 src.Name,
                 src.Price,
-                src.Stock
+                src.Stock,
+                src.ImagePath
                 ));
     }
 }

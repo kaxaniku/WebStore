@@ -6,10 +6,11 @@ public sealed class Product
     public string Name { get; private set; } = null!;
     public decimal Price { get; private set; }
     public int Stock { get; private set; }
+    public string? ImagePath { get; private set; }
 
     private Product() { }
 
-    public static Product Create(string name,decimal price, int quantity)
+    public static Product Create(string name,decimal price, int quantity, string? imagePath = null)
     {
         if (price < 0)
             throw new ArgumentException("Price cannot be negative.", nameof(price));

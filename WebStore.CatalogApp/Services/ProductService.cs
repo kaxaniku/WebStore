@@ -53,7 +53,8 @@ public class ProductService : IProductService
                 Name = productDto.Name,
                 Price = productDto.Price,
                 Stock = productDto.Stock,
-                CategoryId = productDto.CategoryId
+                CategoryId = productDto.CategoryId,
+                ImagePath = productDto.ImagePath
             });
             await _unitOfWork.SaveChangesAsync(ct);
             Product.SetId(productEntity, productDto.Id);
@@ -94,7 +95,8 @@ public class ProductService : IProductService
             Id = productDto.Id,
             Name = productDto.Name,
             Price = productDto.Price,
-            Stock = productDto.Stock
+            Stock = productDto.Stock,
+            ImagePath = productDto.ImagePath
         });
         await _unitOfWork.SaveChangesAsync(ct);
     }
@@ -147,7 +149,8 @@ public class ProductService : IProductService
             Id = productDto.Id,
             Name = productDto.Name,
             Price = productDto.Price,
-            Stock = productDto.Stock
+            Stock = productDto.Stock,
+            ImagePath = productDto.ImagePath
         }, ct);
         await _unitOfWork.SaveChangesAsync(ct);
     }
@@ -178,7 +181,8 @@ public class ProductService : IProductService
             Id = productDto.Id,
             Name = productDto.Name,
             Price = productDto.Price,
-            Stock = productDto.Stock
+            Stock = productDto.Stock,
+            ImagePath = productDto.ImagePath
         }, ct);
         await _unitOfWork.SaveChangesAsync(ct);
     }
@@ -205,6 +209,14 @@ public class ProductService : IProductService
             string newFileName = $"Products/{fn}_{Guid.NewGuid()}{Path.GetExtension(imageFile.FileName)}";
             await _storageService.UploadFileAsync(stream, newFileName, imageFile.ContentType);
             productDto.ImagePath = newFileName;
+            await _publishEndpoint.Publish(new ProductUpdated
+            {
+                Id = productDto.Id,
+                Name = productDto.Name,
+                Price = productDto.Price,
+                Stock = productDto.Stock,
+                ImagePath = productDto.ImagePath
+            }, ct);
             await _unitOfWork.SaveChangesAsync(ct);
         }
     }

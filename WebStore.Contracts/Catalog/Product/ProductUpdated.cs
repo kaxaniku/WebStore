@@ -6,4 +6,5 @@ public record ProductUpdated
     public string Name { get; init; } = string.Empty;
     public decimal Price { get; init; }
     public int Stock { get; init; }
+    public string ImagePath { get; init; } = string.Empty;
 }

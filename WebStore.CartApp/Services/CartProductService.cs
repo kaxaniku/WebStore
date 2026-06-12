@@ -16,7 +16,7 @@ public class CartProductService : ICartProductService
         _mapper = mapper;
     }
 
-    public async Task<int> CreateCartProductAsync(int id, string name, decimal price, int quantity, CancellationToken ct)
+    public async Task<int> CreateCartProductAsync(int id, string name, decimal price, int quantity, string imagePath, CancellationToken ct)
     {
         var existingProductDto = await _unitOfWork.ProductRepository.GetByIdAsync(id, ct);
 
@@ -28,6 +28,7 @@ public class CartProductService : ICartProductService
         var productEntity = Product.Create(name, price, quantity);
         Product.SetId(productEntity, id);
         var productDto = _mapper.Map<DTOs.Product>(productEntity);
+        productDto.ImagePath = imagePath;
 
         try
         {
@@ -93,6 +94,14 @@ public class CartProductService : ICartProductService
         Product.UpdatePrice(entity, newPrice);
 
         _mapper.Map(entity, productDto);
+        await _unitOfWork.SaveChangesAsync(ct);
+    }
+
+    public async Task UpdateProductImagePathAsync(int id, string newImagePath, CancellationToken ct)
+    {
+        var productDto = await _unitOfWork.ProductRepository.GetByIdAsync(id, ct)
+            ?? throw new KeyNotFoundException("Product not found");
+        productDto.ImagePath = newImagePath;
         await _unitOfWork.SaveChangesAsync(ct);
     }
 }

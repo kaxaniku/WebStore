@@ -47,6 +47,7 @@ public class ProductUpdatedConsumer : IConsumer<ProductUpdated>
         await _cartProductService.UpdateProductNameAsync(message.Id, message.Name, CancellationToken.None);
         await _cartProductService.UpdateProductPriceAsync(message.Id, message.Price, CancellationToken.None);
         await _cartProductService.UpdateProductStockAsync(message.Id, message.Stock, CancellationToken.None);
+        await _cartProductService.UpdateProductImagePathAsync(message.Id, message.ImagePath, CancellationToken.None);
 
         await _orderProductService.UpdateProductNameAsync(message.Id, message.Name, CancellationToken.None);
         await _orderProductService.UpdateProductPriceAsync(message.Id, message.Price, CancellationToken.None);

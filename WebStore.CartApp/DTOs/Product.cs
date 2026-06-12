@@ -16,6 +16,7 @@ public sealed class Product : IDisable
     [Column(TypeName = "MONEY")]
     public decimal Price { get; set; }
     public int Stock { get; set; }
+    public string ImagePath { get; set; } = null!;
     public ActivityInfo Activity { get; set; } = new();
 }
 

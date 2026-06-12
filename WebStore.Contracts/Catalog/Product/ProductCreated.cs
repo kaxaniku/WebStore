@@ -7,4 +7,5 @@ public record ProductCreated
     public decimal Price { get; init; }
     public int Stock { get; init; }
     public int CategoryId { get; init; }
+    public string ImagePath { get; init; } = string.Empty;
 }
