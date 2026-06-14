@@ -26,6 +26,8 @@ namespace WebStore.CatalogAPI
                 loggingBuilder.AddConsole();
                 loggingBuilder.AddDebug();
             });
+            builder.ConfigureAuth();
+            builder.ConfigureBearer();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -43,6 +45,7 @@ namespace WebStore.CatalogAPI
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddMassTransit(x =>
             {
                 x.AddEntityFrameworkOutbox<CatalogDbContext>(o =>
@@ -128,6 +131,7 @@ namespace WebStore.CatalogAPI
 
             app.UseCors("OpenPolicy");
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

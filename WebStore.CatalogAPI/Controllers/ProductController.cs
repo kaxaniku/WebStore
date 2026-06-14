@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebStore.CatalogAPI.Models;
 using WebStore.CatalogApp.Interfaces.Services;
 using WebStore.CatalogDomain.Entities;
@@ -32,6 +33,7 @@ public class ProductsController : ControllerBase
         return Ok(product);
     }
 
+    [Authorize]
     [HttpPost("Create-Product")]
     public async Task<ActionResult<int>> Create([FromForm] ProductModel request, CancellationToken ct)
     {
@@ -47,6 +49,7 @@ public class ProductsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id }, id);
     }
 
+    [Authorize]
     [HttpPut("Update-Product/{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] ProductUpdate request, CancellationToken ct)
     {
@@ -54,6 +57,7 @@ public class ProductsController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("Delete-Product/{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
@@ -75,6 +79,7 @@ public class ProductsController : ControllerBase
         return Ok(products);
     }
 
+    [Authorize]
     [HttpPatch("Update-Product-Stock/{id:int}")]
     public async Task<IActionResult> UpdateStock(int id, int newStock, CancellationToken ct)
     {
@@ -82,6 +87,7 @@ public class ProductsController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpPatch("Update-Product-Price/{id:int}")]
     public async Task<IActionResult> UpdatePrice(int id, decimal newPrice, CancellationToken ct)
     {
@@ -89,6 +95,7 @@ public class ProductsController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpPatch("Update-Product-Image/{id:int}")]
     public async Task<IActionResult> UpdateImage(int id, IFormFile imageFile, CancellationToken ct)
     {

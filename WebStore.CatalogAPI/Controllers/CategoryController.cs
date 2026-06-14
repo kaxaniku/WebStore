@@ -1,4 +1,5 @@
 ﻿using MapsterMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebStore.CatalogAPI.Models;
 using WebStore.CatalogApp.Interfaces.Services;
@@ -38,6 +39,7 @@ public class CategoriesController : ControllerBase
         return Ok(category);
     }
 
+    [Authorize]
     [HttpPost("Create-Category")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -51,6 +53,7 @@ public class CategoriesController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id }, new { id, request.Name });
     }
 
+    [Authorize]
     [HttpPut("Update-Category/{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -67,6 +70,7 @@ public class CategoriesController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpDelete("Delete-Category/{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

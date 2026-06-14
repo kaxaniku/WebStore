@@ -1,5 +1,6 @@
 ﻿using Mapster;
 using MapsterMapper;
+using R2StorageApp;
 using WebStore.CatalogApp.Interfaces.Services;
 using WebStore.CatalogApp.Services;
 
@@ -16,5 +17,7 @@ internal static class CatalogServiceConfig
         builder.Services.AddScoped<IMapper, ServiceMapper>();
         builder.Services.AddScoped<CatalogApp.Interfaces.Repositories.IUnitOfWork, Webstore.CatalogInfrastructure.Repositories.UnitOfWork>();
         builder.Services.AddScoped<IProductService, ProductService>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddR2StorageServices(builder.Configuration);
     }
 }

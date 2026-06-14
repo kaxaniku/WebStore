@@ -43,7 +43,7 @@ public class AdminService : IAdminService
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
             await _unitOfWork.AdminRepository.InsertAsync(dto, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            await _publishEndpoint.Publish(new AdminRegistered(dto.Id, dto.Username, dto.Email));
+            await _publishEndpoint.Publish(new AdminRegistered(dto.Id, dto.Username, dto.Email, password));
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             Admin.SetId(adminEntity, dto.Id);
             await _unitOfWork.CommitAsync(cancellationToken);
@@ -65,7 +65,7 @@ public class AdminService : IAdminService
         _mapper.Map(adminEntity, admin);
 
         await _unitOfWork.AdminRepository.UpdateAsync(admin);
-        await _publishEndpoint.Publish(new AdminUpdated(admin.Id, admin.Username, admin.Email));
+        await _publishEndpoint.Publish(new AdminUpdated(admin.Id, oldPw: oldPw, newPw: newPw));
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
@@ -78,7 +78,7 @@ public class AdminService : IAdminService
         _mapper.Map(adminEntity, admin);
 
         await _unitOfWork.AdminRepository.UpdateAsync(admin);
-        await _publishEndpoint.Publish(new AdminUpdated(admin.Id, admin.Username, admin.Email));
+        await _publishEndpoint.Publish(new AdminUpdated(admin.Id, admin.Username));
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
@@ -91,7 +91,7 @@ public class AdminService : IAdminService
         _mapper.Map(adminEntity, admin);
 
         await _unitOfWork.AdminRepository.UpdateAsync(admin);
-        await _publishEndpoint.Publish(new AdminUpdated(admin.Id, admin.Username, admin.Email));
+        await _publishEndpoint.Publish(new AdminUpdated(admin.Id, admin.Email));
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 

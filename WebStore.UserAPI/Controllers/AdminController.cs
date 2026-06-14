@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebStore.UserAPI.Models;
 using WebStore.UserApp.Interfaces.Services;
@@ -37,6 +38,7 @@ public class AdminController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpPost("Admin-Register")]
     public async Task<ActionResult<int>> Register([FromBody] RegisterAdminRequest request, CancellationToken ct)
     {
@@ -49,6 +51,7 @@ public class AdminController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id }, id);
     }
 
+    [Authorize]
     [HttpPatch("Admin-ChangePassword/{id:int}")]
     public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordRequest request, CancellationToken ct)
     {
@@ -56,6 +59,7 @@ public class AdminController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpPatch("Admin-ChangeUsername/{id:int}")]
     public async Task<IActionResult> UpdateUsername(int id, [FromBody] string newUsername, CancellationToken ct)
     {
@@ -63,6 +67,7 @@ public class AdminController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpPatch("Admin-ChangeEmail/{id:int}")]
     public async Task<IActionResult> UpdateEmail(int id, [FromBody] string newEmail, CancellationToken ct)
     {
@@ -70,6 +75,7 @@ public class AdminController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {

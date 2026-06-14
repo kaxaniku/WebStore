@@ -24,7 +24,7 @@ public class ClearCartRequestConsumer : IConsumer<ClearCartRequest>
 
         _hangfire.Schedule<ClearCartRequestConsumer>(
             x => x.ProcessCartAsync(message.CustomerId),
-            TimeSpan.FromSeconds(5));
+            TimeSpan.FromSeconds(1));
 
         await Task.CompletedTask;
     }

@@ -7,15 +7,15 @@ using WebStore.UserInfrastructure.Repositories;
 
 namespace WebStore.BackWorker.Consumers.UserConsumers;
 
-public class AdminRegisteredConsumer : IConsumer<AdminRegistered>
+public class AdminUpdatedConsumer : IConsumer<AdminUpdated>
 {
     private readonly IBackgroundJobClient _hangfire;
-    private readonly ILogger<AdminRegisteredConsumer> _logger;
+    private readonly ILogger<AdminUpdatedConsumer> _logger;
     private readonly UserDbContext _db;
     private readonly IEmailService _emailService;
     private readonly IAuthService _authService;
 
-    public AdminRegisteredConsumer(IBackgroundJobClient hangfire, ILogger<AdminRegisteredConsumer> logger, UserDbContext db, IEmailService emailService, IAuthService authService)
+    public AdminUpdatedConsumer(IBackgroundJobClient hangfire, ILogger<AdminUpdatedConsumer> logger, UserDbContext db, IEmailService emailService, IAuthService authService)
     {
         _hangfire = hangfire;
         _logger = logger;
@@ -24,12 +24,12 @@ public class AdminRegisteredConsumer : IConsumer<AdminRegistered>
         _emailService = emailService;
     }
 
-    public async Task Consume(ConsumeContext<AdminRegistered> context)
+    public async Task Consume(ConsumeContext<AdminUpdated> context)
     {
         var message = context.Message;
         _logger.LogInformation("Message received for Admin: {Id}. Scheduling background job...", message.Id);
 
-        _hangfire.Schedule<AdminRegisteredConsumer>(
+        _hangfire.Schedule<AdminUpdatedConsumer>(
             x => x.ProcessAdminAsync(message),
             TimeSpan.FromSeconds(5));
 
@@ -37,12 +37,18 @@ public class AdminRegisteredConsumer : IConsumer<AdminRegistered>
     }
 
     [Queue("default")]
-    public async Task ProcessAdminAsync(AdminRegistered message)
+    public async Task ProcessAdminAsync(AdminUpdated message)
     {
         _logger.LogInformation("[Hangfire Job] Warmly welcoming Admin to industry {Id}", message.Id);
-
-        await _authService.RegisterAdminAsync(message.Id, message.Username, message.Password, CancellationToken.None);
-        //await _emailService.SendEmailAsync(message.Email, "Welcome to KN-Industry-WebStore", $"Thank you for registering with us dear admin {message.Username}");
+        if(!string.IsNullOrEmpty(message.newPw))
+        {
+            await _authService.ChangePasswordAsync(message.Id, message.oldPw, message.newPw, CancellationToken.None);
+            //await _emailService.SendEmailAsync(message.Email, "Password Change Notification", $"Dear admin {message.Username}, your password has been successfully changed.");
+        }
+        if (!string.IsNullOrEmpty(message.Username)) {
+            await _authService.UpdateUsernameAsync(message.Id, message.Username, CancellationToken.None);
+            //await _emailService.SendEmailAsync(message.Email, "Username Change Notification", $"Dear admin {message.Username}, your username has been successfully changed.");
+        }
         await Task.Delay(1000);
         _logger.LogInformation("[Hangfire Job] Successfully registered Admin {Id}", message.Id);
     }

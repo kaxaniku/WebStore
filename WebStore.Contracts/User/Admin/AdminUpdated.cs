@@ -1,3 +1,3 @@
 ﻿namespace WebStore.Contracts.User.Admin;
 
-public record AdminUpdated(int Id, string Username, string Email);
+public record AdminUpdated(int Id, string Username ="", string Email = "", string oldPw = "", string newPw = "");

@@ -19,6 +19,8 @@ internal static class MassTransitConfig
             x.AddConsumer<ProductDeletedConsumer>();
             x.AddConsumer<ProductUpdatedConsumer>();
             x.AddConsumer<AdminRegisteredConsumer>();
+            x.AddConsumer<AdminUpdatedConsumer>();
+            x.AddConsumer<AdminRemovedConsumer>();
             x.AddConsumer<GetCartRequestConsumer>();
             x.AddConsumer<ClearCartRequestConsumer>();
 

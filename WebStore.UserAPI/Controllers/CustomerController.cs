@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebStore.UserAPI.Models;
 using WebStore.UserApp.Interfaces.Services;
@@ -70,6 +71,7 @@ public class CustomersController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {

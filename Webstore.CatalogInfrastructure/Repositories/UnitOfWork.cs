@@ -12,9 +12,10 @@ public sealed class UnitOfWork : IUnitOfWork
 
     private readonly Lazy<IProductRepository> _product;
     private readonly Lazy<ICategoryRepository> _category;
-
+    private readonly Lazy<IAdminRepository> _admin;
     public IProductRepository ProductRepository => CheckDisposedAndGet(_product);
     public ICategoryRepository CategoryRepository => CheckDisposedAndGet(_category);
+    public IAdminRepository AdminRepository => CheckDisposedAndGet(_admin);
 
     public UnitOfWork(CatalogDbContext context)
     {
@@ -22,6 +23,7 @@ public sealed class UnitOfWork : IUnitOfWork
 
         _product = new Lazy<IProductRepository>(() => new ProductRepository(_context));
         _category = new Lazy<ICategoryRepository>(() => new CategoryRepository(_context));
+        _admin = new Lazy<IAdminRepository>(() => new AdminRepository(_context));
     }
 
     public int SaveChanges()
@@ -135,6 +137,9 @@ public sealed class UnitOfWork : IUnitOfWork
 
             if (_category.IsValueCreated)
                 _category.Value.Dispose();
+
+            if (_admin.IsValueCreated)
+                _admin.Value.Dispose();
         }
 
         _disposed = true;
@@ -155,6 +160,9 @@ public sealed class UnitOfWork : IUnitOfWork
 
             if (_category.IsValueCreated)
                 await _category.Value.DisposeAsync();
+
+            if (_admin.IsValueCreated)
+                await _admin.Value.DisposeAsync();
 
             _disposed = true;
         }

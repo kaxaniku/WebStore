@@ -26,6 +26,8 @@ namespace WebStore.UserAPI
                 loggingBuilder.AddConsole();
                 loggingBuilder.AddDebug();
             });
+            builder.ConfigureAuth();
+            builder.ConfigureBearer();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -131,6 +133,7 @@ namespace WebStore.UserAPI
 
             app.UseCors("OpenPolicy");
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

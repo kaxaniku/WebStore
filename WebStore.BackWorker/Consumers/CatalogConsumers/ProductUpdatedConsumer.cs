@@ -31,7 +31,7 @@ public class ProductUpdatedConsumer : IConsumer<ProductUpdated>
 
         _hangfire.Schedule<ProductUpdatedConsumer>(
             x => x.ProcessProductAsync(message),
-            TimeSpan.FromSeconds(5));
+            TimeSpan.FromSeconds(1));
 
         await Task.CompletedTask;
     }
