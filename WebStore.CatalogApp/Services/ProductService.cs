@@ -126,13 +126,13 @@ public class ProductService : IProductService
     }
     public async Task<IEnumerable<Product>> SearchProductsAsync(string productName, CancellationToken ct)
     {
-        var products = await _unitOfWork.ProductRepository.QueryAsync(p => p.Name.Contains(productName), ct);
+        var products = await _unitOfWork.ProductRepository.QueryAsync(p => p.Name.Contains(productName) && p.Activity.IsActive, ct);
         return _mapper.Map<IEnumerable<Product>>(products);
     }
 
     public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId, CancellationToken ct)
     {
-        var products = await _unitOfWork.ProductRepository.QueryAsync(p => p.Category.Id == categoryId, ct);
+        var products = await _unitOfWork.ProductRepository.QueryAsync(p => p.Category.Id == categoryId && p.Activity.IsActive, ct);
         return _mapper.Map<IEnumerable<Product>>(products);
     }
 
